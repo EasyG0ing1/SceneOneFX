@@ -247,6 +247,8 @@ public class SceneOne {
 	}
 
 	public static void remove(String sceneId) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).destroy();
 		sceneMap.remove(sceneId);
 	}
 
@@ -350,7 +352,7 @@ public class SceneOne {
 		Dimension screenDimensions = Toolkit.getDefaultToolkit().getScreenSize();
 		private final double  screenWidth  = screenDimensions.getWidth();
 		private final double  screenHeight = screenDimensions.getHeight();
-		private final Stage   stage;
+		private       Stage   stage;
 		private final boolean centered;
 		private       double  posX;
 		private       double  posY;
@@ -494,6 +496,12 @@ public class SceneOne {
 
 		public Window getWindow() {
 			return stage.getScene().getWindow();
+		}
+
+		public void destroy() {
+			stage.close();
+			stage = null;
+			scene = null;
 		}
 
 	}
