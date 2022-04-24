@@ -48,21 +48,21 @@ The project is available as a Maven dependency on Central. Add the following to 
 <dependency>
     <groupId>com.simtechdata</groupId>
     <artifactId>SceneOneFX</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.10</version>
 </dependency>
 ```
 
 Or, if using Gradle to build, add this to your Gradle build file
 
 ```groovy
-compile group: 'com.simtechdata', name: 'SceneOneFX', version: 1.0.1
+compile group: 'com.simtechdata', name: 'SceneOneFX', version: 1.0.10
 ```
 
 You can even use it from a Groovy script!
 
 ```groovy
 @Grapes(
-  @Grab(group='com.simtechdata', module='SceneOneFX', version=1.0.1)
+  @Grab(group='com.simtechdata', module='SceneOneFX', version=1.0.10)
 )
 ```
 
@@ -215,7 +215,10 @@ If your project uses SceneOneFX, shoot me an email - sims.mike@gmail.com - I'd l
 
 ## Version 1.0
 
-* **1.0.1**
+* **1.0.10**
+  * Added more capabilities
+
+* **1.0.10**
   * Fixed bug in .remove method so that it now destroys scene objects before removing.
 
 * **1.0.0**
