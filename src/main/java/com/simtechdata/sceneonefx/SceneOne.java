@@ -72,6 +72,14 @@ public class SceneOne {
 			return this;
 		}
 
+		public Builder owner(String sceneId) {
+			if(sceneMap.containsKey(sceneId))
+				this.owner = sceneMap.get(sceneId).getStage();
+			else
+				throw noSceneError(sceneId);
+			return this;
+		}
+
 		public Builder centered() {
 			this.centered = true;
 			return this;
@@ -125,7 +133,6 @@ public class SceneOne {
 			this.keyReleasedEventHandler = keyReleasedEventHandler;
 			return this;
 		}
-
 
 		public Builder onShownEvent(EventHandler<WindowEvent> onShownEventHandler) {
 			this.onShownEventHandler = onShownEventHandler;
@@ -191,7 +198,6 @@ public class SceneOne {
 		sceneMap.get(sceneId).toggleFullScreen();
 	}
 
-
 	/**
 	 * Actions
 	 */
@@ -224,6 +230,12 @@ public class SceneOne {
 	public static void close(String sceneId) {
 		checkScene(sceneId);
 		sceneMap.get(sceneId).close();
+	}
+
+	public static void closeIfShowing(String sceneId) {
+		if(sceneMap.containsKey(sceneId)) {
+			sceneMap.get(sceneId).closeIfShowing();
+		}
 	}
 
 	public static void remove(String sceneId) {
@@ -310,7 +322,6 @@ public class SceneOne {
 		checkScene(sceneId);
 		return sceneMap.get(sceneId).getStage().isShowing();
 	}
-
 
 	/**
 	 * Getters
@@ -642,6 +653,11 @@ public class SceneOne {
 			stage.close();
 		}
 
+		public void closeIfShowing() {
+			if(stage.isShowing())
+				stage.close();
+		}
+
 		public double getWidth() {
 			return stage.getWidth();
 		}
@@ -663,6 +679,7 @@ public class SceneOne {
 		}
 
 		public void destroy() {
+
 			stage.close();
 			stage = null;
 			scene = null;

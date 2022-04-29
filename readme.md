@@ -215,6 +215,10 @@ If your project uses SceneOneFX, shoot me an email - sims.mike@gmail.com - I'd l
 
 ## Version 1.0
 
+* **1.0.11**
+  * Added owner(String sceneId) to the Builder class - letting you set the stages owner to a stage that has already been created by SceneOneFX.
+  * Added closeIfShowing method - making it easy to close a scene that may or may not be showing. Does not throw an error if the scene does not already exist.
+
 * **1.0.10**
   * Added more capabilities
 
