@@ -48,27 +48,28 @@ public class SceneOne {
 
 		private final String                         sceneId;
 		private final Parent                         parent;
-		private       double                         width                 = -1;
-		private       double                         height                = -1;
-		private       StageStyle                     style                 = null;
-		private       Modality                       modality              = null;
-		private       boolean                        centered              = false;
-		private       boolean                        alwaysOnTop           = false;
-		private       String                         title                 = "";
-		private       double                         posX                  = -1;
-		private       double                         posY                  = -1;
-		private       EventHandler<WindowEvent>      onShownEventHandler   = null;
-		private       EventHandler<WindowEvent>      onHiddenEventHandler  = null;
-		private       EventHandler<WindowEvent>      onShowingEventHandler = null;
-		private       EventHandler<WindowEvent>      onHidingEventHandler  = null;
-		private       EventHandler<WindowEvent>      onCloseEventHandler   = null;
-		private       EventHandler<? super KeyEvent> keyPressedEventHandler;
-		private       EventHandler<? super KeyEvent> keyReleasedEventHandler;
-		private final ObservableList<String>         styleSheets           = FXCollections.observableArrayList();
-		private       Stage                          owner                 = null;
+		private final ObservableList<String>         styleSheets             = FXCollections.observableArrayList();
+		private       double                         width                   = -1;
+		private       double                         height                  = -1;
+		private       StageStyle                     style                   = null;
+		private       Modality                       modality                = null;
+		private       boolean                        centered                = false;
+		private       boolean                        alwaysOnTop             = false;
+		private       String                         title                   = "";
+		private       double                         posX                    = -1;
+		private       double                         posY                    = -1;
+		private       EventHandler<WindowEvent>      onShownEventHandler     = null;
+		private       EventHandler<WindowEvent>      onHiddenEventHandler    = null;
+		private       EventHandler<WindowEvent>      onShowingEventHandler   = null;
+		private       EventHandler<WindowEvent>      onHidingEventHandler    = null;
+		private       EventHandler<WindowEvent>      onCloseEventHandler     = null;
+		private       EventHandler<? super KeyEvent> keyPressedEventHandler  = null;
+		private       EventHandler<? super KeyEvent> keyReleasedEventHandler = null;
+		private       Stage                          owner                   = null;
 
 		public Builder owner(Stage owner) {
-			this.owner = owner;
+			if(owner != null)
+				this.owner = owner;
 			return this;
 		}
 
@@ -82,6 +83,11 @@ public class SceneOne {
 
 		public Builder centered() {
 			this.centered = true;
+			return this;
+		}
+
+		public Builder centered(boolean centered) {
+			this.centered = centered;
 			return this;
 		}
 
@@ -99,22 +105,27 @@ public class SceneOne {
 		}
 
 		public Builder initStyle(StageStyle style) {
-			this.style = style;
+			if (style != null)
+				this.style = style;
 			return this;
 		}
 
 		public Builder styleSheets(String... styleSheets) {
-			this.styleSheets.addAll(styleSheets);
+			if(styleSheets != null)
+				this.styleSheets.addAll(styleSheets);
 			return this;
 		}
 
 		public Builder modality(Modality modality) {
-			this.modality = modality;
+			if(modality != null)
+				this.modality = modality;
 			return this;
 		}
 
 		public Builder title(String title) {
-			this.title = title;
+			if (title != null)
+				if(!title.isEmpty())
+					this.title = title;
 			return this;
 		}
 
@@ -125,42 +136,54 @@ public class SceneOne {
 		}
 
 		public Builder onKeyPressed(EventHandler<? super KeyEvent> keyPressedEventHandler) {
-			this.keyPressedEventHandler = keyPressedEventHandler;
+			if(keyPressedEventHandler != null)
+				this.keyPressedEventHandler = keyPressedEventHandler;
 			return this;
 		}
 
 		public Builder onKeyReleased(EventHandler<? super KeyEvent> keyReleasedEventHandler) {
-			this.keyReleasedEventHandler = keyReleasedEventHandler;
+			if(keyReleasedEventHandler != null)
+				this.keyReleasedEventHandler = keyReleasedEventHandler;
 			return this;
 		}
 
 		public Builder onShownEvent(EventHandler<WindowEvent> onShownEventHandler) {
-			this.onShownEventHandler = onShownEventHandler;
+			if(onShownEventHandler != null)
+				this.onShownEventHandler = onShownEventHandler;
 			return this;
 		}
 
 		public Builder onHiddenEvent(EventHandler<WindowEvent> onHiddenEventHandler) {
-			this.onHiddenEventHandler = onHiddenEventHandler;
+			if(onHiddenEventHandler != null)
+				this.onHiddenEventHandler = onHiddenEventHandler;
 			return this;
 		}
 
 		public Builder onShowingEvent(EventHandler<WindowEvent> onShowingEventHandler) {
-			this.onShowingEventHandler = onShowingEventHandler;
+			if(onShowingEventHandler != null)
+				this.onShowingEventHandler = onShowingEventHandler;
 			return this;
 		}
 
 		public Builder onHidingEvent(EventHandler<WindowEvent> onHidingEventHandler) {
-			this.onHidingEventHandler = onHidingEventHandler;
+			if(onHidingEventHandler != null)
+				this.onHidingEventHandler = onHidingEventHandler;
 			return this;
 		}
 
 		public Builder onCloseEvent(EventHandler<WindowEvent> onCloseEventHandler) {
-			this.onCloseEventHandler = onCloseEventHandler;
+			if(onCloseEventHandler != null)
+				this.onCloseEventHandler = onCloseEventHandler;
 			return this;
 		}
 
 		public Builder alwaysOnTop() {
 			this.alwaysOnTop = true;
+			return this;
+		}
+
+		public Builder alwaysOnTop(boolean alwaysOnTop) {
+			this.alwaysOnTop = alwaysOnTop;
 			return this;
 		}
 
@@ -235,6 +258,12 @@ public class SceneOne {
 	public static void closeIfShowing(String sceneId) {
 		if(sceneMap.containsKey(sceneId)) {
 			sceneMap.get(sceneId).closeIfShowing();
+		}
+	}
+
+	public static void hideIfShowing(String sceneId) {
+		if(sceneMap.containsKey(sceneId)) {
+			sceneMap.get(sceneId).hideIfShowing();
 		}
 	}
 
@@ -316,6 +345,11 @@ public class SceneOne {
 	public static void setOnKeyReleased(String sceneName, EventHandler<? super KeyEvent> keyReleasedEventHandler) {
 		checkScene(sceneName);
 		sceneMap.get(sceneName).setOnKeyReleased(keyReleasedEventHandler);
+	}
+
+	public static void setStyleSheets(String sceneId, String... styleSheets) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).setStyleSheets(styleSheets);
 	}
 
 	public static boolean isShowing(String sceneId) {
@@ -658,6 +692,11 @@ public class SceneOne {
 				stage.close();
 		}
 
+		public void hideIfShowing() {
+			if(stage.isShowing())
+				stage.hide();
+		}
+
 		public double getWidth() {
 			return stage.getWidth();
 		}
@@ -678,8 +717,12 @@ public class SceneOne {
 			return scene.getWindow();
 		}
 
-		public void destroy() {
+		public void setStyleSheets(String... styleSheets) {
+			scene.getStylesheets().clear();
+			scene.getStylesheets().addAll(styleSheets);
+		}
 
+		public void destroy() {
 			stage.close();
 			stage = null;
 			scene = null;
