@@ -509,6 +509,7 @@ public class SceneOne {
 		private final double  screenHeight = screenDimensions.getHeight();
 		private       Stage   stage;
 		private final boolean centered;
+		private boolean hasShown = false;
 		private       double  posX;
 		private       double  posY;
 		private       Size    size;
@@ -607,9 +608,14 @@ public class SceneOne {
 		}
 
 		public void show() {
+			if (hasShown) {
+				stage.show();
+				return;
+			}
 			preProcess();
 			stage.show();
 			postProcess();
+			hasShown = true;
 		}
 
 		public void showAndWait() {

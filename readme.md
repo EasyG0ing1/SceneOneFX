@@ -48,21 +48,21 @@ The project is available as a Maven dependency on Central. Add the following to 
 <dependency>
     <groupId>com.simtechdata</groupId>
     <artifactId>SceneOneFX</artifactId>
-    <version>1.0.14</version>
+    <version>1.0.15</version>
 </dependency>
 ```
 
 Or, if using Gradle to build, add this to your Gradle build file
 
 ```groovy
-compile group: 'com.simtechdata', name: 'SceneOneFX', version: 1.0.14
+compile group: 'com.simtechdata', name: 'SceneOneFX', version: 1.0.15
 ```
 
 You can even use it from a Groovy script!
 
 ```groovy
 @Grapes(
-  @Grab(group='com.simtechdata', module='SceneOneFX', version=1.0.14)
+  @Grab(group='com.simtechdata', module='SceneOneFX', version=1.0.15)
 )
 ```
 
@@ -215,8 +215,9 @@ If your project uses SceneOneFX, shoot me an email - sims.mike@gmail.com - I'd l
 
 ## Version 1.0
 
-* **1.0.14**
+* **1.0.15**
   * Added ```hideIfShowing()```
+  * Bug Fixes
 
 * **1.0.12**
   * Modified relevant Builder class methods to check for null for pass in objects, making it easier for developers to create template code without needing to worry about verifying objects passed into those templates as the Builder class will handle it.
@@ -225,10 +226,10 @@ If your project uses SceneOneFX, shoot me an email - sims.mike@gmail.com - I'd l
   * Added owner(String sceneId) to the Builder class - letting you set the stages owner to a stage that has already been created by SceneOneFX.
   * Added closeIfShowing method - making it easy to close a scene that may or may not be showing. Does not throw an error if the scene does not already exist.
 
-* **1.0.14**
+* **1.0.15**
   * Added more capabilities
 
-* **1.0.14**
+* **1.0.15**
   * Fixed bug in .remove method so that it now destroys scene objects before removing.
 
 * **1.0.0**
