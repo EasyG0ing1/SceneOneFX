@@ -48,21 +48,21 @@ The project is available as a Maven dependency on Central. Add the following to 
 <dependency>
     <groupId>com.simtechdata</groupId>
     <artifactId>SceneOneFX</artifactId>
-    <version>1.0.15</version>
+    <version>1.0.16</version>
 </dependency>
 ```
 
 Or, if using Gradle to build, add this to your Gradle build file
 
 ```groovy
-compile group: 'com.simtechdata', name: 'SceneOneFX', version: 1.0.15
+compile group: 'com.simtechdata', name: 'SceneOneFX', version: 1.0.16
 ```
 
 You can even use it from a Groovy script!
 
 ```groovy
 @Grapes(
-  @Grab(group='com.simtechdata', module='SceneOneFX', version=1.0.15)
+  @Grab(group='com.simtechdata', module='SceneOneFX', version=1.0.16)
 )
 ```
 
@@ -133,12 +133,14 @@ SceneOne.set(sceneID, parent, width, height)
 .owner(Stage) //Assign an existing stage as this scenes owner Stage
 .centered()
 .centered(width, height) //Used when you want to call a showAndWait
+.hideOnLostFocus()
+.hideOnLostFocus(boolean)
 .initStyle(StageStyle)
 .modality(Modality)
 .title(String)
 .onShownEvent(e -> myMethod())
-.onHiddenEvent(e -> myMethod())
 .onShowingEvent(e -> myMethod())
+.onHiddenEvent(e -> myMethod())
 .onHidingEvent(e -> myMethod())
 .onCloseEvent(e -> myMethod())
 .alwaysOnTop()
@@ -213,10 +215,10 @@ If your project uses SceneOneFX, shoot me an email - sims.mike@gmail.com - I'd l
 ---
 <h1 style="font-size:8vw"><p style="color:royalblue">Version Update Notes</p></h1>
 
-## Version 1.0
-
-* **1.0.15**
+* **1.0.16**
+  * Added ```hideOnLostFocus()``` - To the Builder and post build methods
   * Added ```hideIfShowing()```
+  * Added ```reShow()```
   * Bug Fixes
 
 * **1.0.12**
@@ -226,10 +228,10 @@ If your project uses SceneOneFX, shoot me an email - sims.mike@gmail.com - I'd l
   * Added owner(String sceneId) to the Builder class - letting you set the stages owner to a stage that has already been created by SceneOneFX.
   * Added closeIfShowing method - making it easy to close a scene that may or may not be showing. Does not throw an error if the scene does not already exist.
 
-* **1.0.15**
+* **1.0.10**
   * Added more capabilities
 
-* **1.0.15**
+* **1.0.1**
   * Fixed bug in .remove method so that it now destroys scene objects before removing.
 
 * **1.0.0**
