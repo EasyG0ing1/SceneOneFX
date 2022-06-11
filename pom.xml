@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--VERSION 1.8-->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>com.simtechdata</groupId>
     <artifactId>SceneOneFX</artifactId>
-    <version>1.0.16</version>
+    <version>1.2.0</version>
+    <dependencies>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>23.0.0</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
     <packaging>jar</packaging>
 
     <name>${project.artifactId}</name>
@@ -124,22 +132,6 @@
                     <autoReleaseAfterClose>true</autoReleaseAfterClose>
                 </configuration>
             </plugin>
-            <!-- Maven jar plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.2</version>
-                <configuration>
-                    <skipIfEmpty>true</skipIfEmpty>
-                    <archive>
-                        <manifestEntries>
-                            <Automatic-Module-Name>com.simtechdata.sceneonefx</Automatic-Module-Name>
-                            <Program-Version>${version}</Program-Version>
-                            <Implementation-Version>${version}</Implementation-Version>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
             <!-- Maven Deploy plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -154,6 +146,23 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <!-- Maven jar plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.2</version>
+                <configuration>
+                    <skipIfEmpty>true</skipIfEmpty>
+                    <archive>
+                        <manifestEntries>
+                            <Automatic-Module-Name>com.simtechdata.sceneonefx</Automatic-Module-Name>
+                            <Program-Version>${project.version}</Program-Version>
+                            <Implementation-Version>${project.version}</Implementation-Version>
+                        </manifestEntries>
+                    </archive>
+                    <outputDirectory>/Users/michael/Java/SceneOneFX</outputDirectory>
+                </configuration>
             </plugin>
             <!-- Maven release plugin -->
             <plugin>
@@ -188,8 +197,8 @@
                             <archive>
                                 <manifestEntries>
                                     <Automatic-Module-Name>com.simtechdata.sceneonefx</Automatic-Module-Name>
-                                    <Program-Version>${version}</Program-Version>
-                                    <Implementation-Version>${version}</Implementation-Version>
+                                    <Program-Version>${project.version}</Program-Version>
+                                    <Implementation-Version>${project.version}</Implementation-Version>
                                 </manifestEntries>
                             </archive>
                         </configuration>
@@ -203,10 +212,15 @@
                 <version>3.4.0</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
+                    <author>true</author>
                 </configuration>
                 <executions>
                     <execution>
                         <id>attach-javadoc</id>
+                        <configuration>
+                            <version>true</version>
+                            <author>true</author>
+                        </configuration>
                         <goals>
                             <goal>jar</goal>
                         </goals>

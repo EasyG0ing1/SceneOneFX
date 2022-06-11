@@ -10,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.*;
 import javafx.stage.Window;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -25,13 +26,10 @@ public class SceneOne {
 	}
 
 	private static final Dimension screenDimensions = Toolkit.getDefaultToolkit().getScreenSize();
-
 	private static final Map<String,SceneObject> sceneMap = new HashMap<>();
 
 
-	/**
-	 * Public Methods
-	 */
+	/*Builder Class*/
 
 	public static class Builder {
 
@@ -47,28 +45,31 @@ public class SceneOne {
 			this.height  = height;
 		}
 
-		private final String                         sceneId;
-		private final Parent                         parent;
-		private final ObservableList<String>         styleSheets               = FXCollections.observableArrayList();
-		private       double                         width                     = -1;
-		private       double                         height                    = -1;
-		private       StageStyle                     style                     = null;
-		private       Modality                       modality                  = null;
-		private       boolean                        centered                  = false;
-		private       boolean                        alwaysOnTop               = false;
-		private       boolean                        hideOnLostFocus           = false;
-		private       String                         title                     = "";
-		private       double                         posX                      = -1;
-		private       double                         posY                      = -1;
-		private       EventHandler<WindowEvent>      onShownEventHandler       = null;
-		private       EventHandler<WindowEvent>      onHiddenEventHandler      = null;
-		private       EventHandler<WindowEvent>      onShowingEventHandler     = null;
-		private       EventHandler<WindowEvent>      onHidingEventHandler      = null;
-		private       EventHandler<WindowEvent>      onCloseEventHandler       = null;
-		private       EventHandler<WindowEvent>      onWindowCloseEventHandler = null;
-		private       EventHandler<? super KeyEvent> keyPressedEventHandler    = null;
-		private       EventHandler<? super KeyEvent> keyReleasedEventHandler   = null;
-		private       Stage                          owner                     = null;
+		private final String                          sceneId;
+		private final Parent                          parent;
+		private final ObservableList<String>          styleSheets               = FXCollections.observableArrayList();
+		private       double                          width                     = -1;
+		private       double                          height                    = -1;
+		private       StageStyle                      style                     = null;
+		private       Modality                        modality                  = null;
+		private       boolean                         centered                  = false;
+		private       boolean                         alwaysOnTop               = false;
+		private       boolean                         hideOnLostFocus           = false;
+		private       String                          title                     = "";
+		private       double                          posX                      = -1;
+		private       double                          posY                      = -1;
+		private       double                          splitFactorX              = -1;
+		private       double                          splitFactorY              = -1;
+		private       EventHandler<WindowEvent>       onShownEventHandler       = null;
+		private       EventHandler<WindowEvent>       onHiddenEventHandler      = null;
+		private       EventHandler<WindowEvent>       onShowingEventHandler     = null;
+		private       EventHandler<WindowEvent>       onHidingEventHandler      = null;
+		private       EventHandler<WindowEvent>       onCloseEventHandler       = null;
+		private       EventHandler<WindowEvent>       onWindowCloseEventHandler = null;
+		private       ChangeListener<? super Boolean> lostFocusListener         = null;
+		private       EventHandler<? super KeyEvent>  keyPressedEventHandler    = null;
+		private       EventHandler<? super KeyEvent>  keyReleasedEventHandler   = null;
+		private       Stage                           owner                     = null;
 
 		public Builder owner(Stage owner) {
 			if(owner != null)
@@ -80,8 +81,6 @@ public class SceneOne {
 			if(sceneId != null) {
 				if(sceneMap.containsKey(sceneId))
 					this.owner = sceneMap.get(sceneId).getStage();
-				//else
-					//throw noSceneError(sceneId);
 			}
 			return this;
 		}
@@ -150,6 +149,26 @@ public class SceneOne {
 			return this;
 		}
 
+		public Builder splitXY(double posX, double posY, double xFactor, double yFactor) {
+			this.posX = posX;
+			this.posY         = posY;
+			this.splitFactorX = xFactor;
+			this.splitFactorY = yFactor;
+			return this;
+		}
+
+		public Builder splitX(double posX, double splitFactorX) {
+			this.posX         = posX;
+			this.splitFactorX = splitFactorX;
+			return this;
+		}
+
+		public Builder splitY(double posY, double splitFactorY) {
+			this.splitFactorY = splitFactorY;
+			this.posY         = posY;
+			return this;
+		}
+
 		public Builder onKeyPressed(EventHandler<? super KeyEvent> keyPressedEventHandler) {
 			if(keyPressedEventHandler != null)
 				this.keyPressedEventHandler = keyPressedEventHandler;
@@ -162,27 +181,27 @@ public class SceneOne {
 			return this;
 		}
 
-		public Builder onShownEvent(EventHandler<WindowEvent> onShownEventHandler) {
-			if(onShownEventHandler != null)
-				this.onShownEventHandler = onShownEventHandler;
-			return this;
-		}
-
-		public Builder onHiddenEvent(EventHandler<WindowEvent> onHiddenEventHandler) {
-			if(onHiddenEventHandler != null)
-				this.onHiddenEventHandler = onHiddenEventHandler;
-			return this;
-		}
-
 		public Builder onShowingEvent(EventHandler<WindowEvent> onShowingEventHandler) {
 			if(onShowingEventHandler != null)
 				this.onShowingEventHandler = onShowingEventHandler;
 			return this;
 		}
 
+		public Builder onShownEvent(EventHandler<WindowEvent> onShownEventHandler) {
+			if(onShownEventHandler != null)
+				this.onShownEventHandler = onShownEventHandler;
+			return this;
+		}
+
 		public Builder onHidingEvent(EventHandler<WindowEvent> onHidingEventHandler) {
 			if(onHidingEventHandler != null)
 				this.onHidingEventHandler = onHidingEventHandler;
+			return this;
+		}
+
+		public Builder onHiddenEvent(EventHandler<WindowEvent> onHiddenEventHandler) {
+			if(onHiddenEventHandler != null)
+				this.onHiddenEventHandler = onHiddenEventHandler;
 			return this;
 		}
 
@@ -198,6 +217,11 @@ public class SceneOne {
 			return this;
 		}
 
+		public Builder onLostFocus(ChangeListener<? super Boolean> lostFocusListener) {
+			this.lostFocusListener = lostFocusListener;
+			return this;
+		}
+
 		public Builder alwaysOnTop() {
 			this.alwaysOnTop = true;
 			return this;
@@ -209,8 +233,8 @@ public class SceneOne {
 		}
 
 		public void build() {
-			SceneObject sceneObject = new SceneObject(this);
-			sceneMap.put(sceneId, sceneObject);
+			sceneMap.remove(sceneId);
+			sceneMap.put(sceneId, new SceneObject(this));
 		}
 
 		public void show() {
@@ -229,271 +253,8 @@ public class SceneOne {
 		}
 	}
 
-	public static Builder set(String sceneId, Parent parent) {
-		return new Builder(sceneId, parent);
-	}
 
-	public static Builder set(String sceneId, Parent parent, double width, double height) {
-		return new Builder(sceneId, parent, width, height);
-	}
-
-	public static void toggleFullScreen(String sceneId) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).toggleFullScreen();
-	}
-
-	/**
-	 * Actions
-	 */
-
-	public static void show(String sceneId) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).show();
-	}
-
-	public static void showAndWait(String sceneId) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).showAndWait();
-	}
-
-	public static void hide(String sceneId) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).hide();
-	}
-
-	public static void unHide(String sceneId) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).unHide();
-	}
-
-	public static void reSize(String sceneId, double width, double height) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).resize(width,height);
-	}
-
-	public static void close(String sceneId) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).close();
-	}
-
-	public static void closeIfShowing(String sceneId) {
-		if(sceneMap.containsKey(sceneId)) {
-			sceneMap.get(sceneId).closeIfShowing();
-		}
-	}
-
-	public static void hideIfShowing(String sceneId) {
-		if(sceneMap.containsKey(sceneId)) {
-			sceneMap.get(sceneId).hideIfShowing();
-		}
-	}
-
-	public static void remove(String sceneId) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).destroy();
-		sceneMap.remove(sceneId);
-	}
-
-	public static void center(String sceneId) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).center();
-	}
-
-	public static void reCenterScene(String sceneId) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).reCenterScene();
-	}
-
-	public static void reShow(String sceneId) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).reShow();
-	}
-
-	/**
-	 * Setters
-	 */
-
-	public static void setStyleCOW(String... styleSheets) {
-		for (String sceneId : sceneMap.keySet()) {
-			SceneObject so = sceneMap.get(sceneId);
-			if (so != null) {
-				so.setStyleSheets(styleSheets);
-			}
-		}
-	}
-
-	public static void setHeight(String sceneId, double height) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setHeight(height);
-	}
-
-	public static void setWidth(String sceneId, double width) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setWidth(width);
-	}
-
-	public static void setPosition(String sceneId, double posX, double posY) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setPosition(posX, posY);
-	}
-
-	public static void setParent(String sceneId, Parent parent) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setParent(parent);
-	}
-
-	public static void setTitle(String sceneId, String title) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setTitle(title);
-	}
-
-	public static void setOnShowingEvent(String sceneId, EventHandler<WindowEvent> onShowingEventHandler) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setOnShowingEvent(onShowingEventHandler);
-	}
-
-	public static void setOnShownEvent(String sceneId, EventHandler<WindowEvent> onShownEventHandler) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setOnShownEvent(onShownEventHandler);
-	}
-
-	public static void setOnHidingEvent(String sceneId, EventHandler<WindowEvent> onHidingEventHandler) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setOnHidingEvent(onHidingEventHandler);
-	}
-
-	public static void setOnHiddenEvent(String sceneId, EventHandler<WindowEvent> onHiddenEventHandler) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setOnHiddenEvent(onHiddenEventHandler);
-	}
-
-	public static void setOnCloseEvent(String sceneId, EventHandler<WindowEvent> onCloseEventHandler) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setOnCloseEvent(onCloseEventHandler);
-	}
-
-	public static void setOnKeyPressed(String sceneId, EventHandler<? super KeyEvent> keyPressedEventHandler) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setOnKeyPressed(keyPressedEventHandler);
-	}
-
-	public static void setOnKeyReleased(String sceneId, EventHandler<? super KeyEvent> keyReleasedEventHandler) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setOnKeyReleased(keyReleasedEventHandler);
-	}
-
-	public static void setStyleSheets(String sceneId, String... styleSheets) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setStyleSheets(styleSheets);
-	}
-
-	public static void addStyleSheet(String sceneId, String styleSheet) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).addStyleSheet(styleSheet);
-	}
-
-	public static void clearStyleSheets(String sceneId) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).clearStyleSheets();
-	}
-
-	public static void setHideOnLostFocus(String sceneId) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setHideOnLostFocus(true, sceneId);
-	}
-
-	public static void setHideOnLostFocus(String sceneId, boolean hideOnLostFocus) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setHideOnLostFocus(hideOnLostFocus, sceneId);
-	}
-
-	/**
-	 * Getters
-	 */
-
-	public static Stage getStage(String sceneId) {
-		checkScene(sceneId);
-		return sceneMap.get(sceneId).getStage();
-	}
-
-	public static boolean isShowing(String sceneId) {
-		checkScene(sceneId);
-		return sceneMap.get(sceneId).getStage().isShowing();
-	}
-
-	public static Scene getScene(String sceneId) {
-		checkScene(sceneId);
-		return sceneMap.get(sceneId).getScene();
-	}
-
-	public static Window getWindow(String sceneId) {
-		checkScene(sceneId);
-		return sceneMap.get(sceneId).getWindow();
-	}
-
-	public static boolean sceneExists(String sceneId) {
-		return sceneMap.containsKey(sceneId);
-	}
-
-	public static Window getOwner(String sceneId) {
-		checkScene(sceneId);
-		return sceneMap.get(sceneId).getStage().getOwner();
-	}
-
-	public static Dimension getScreenDimensions() {
-		return screenDimensions;
-	}
-
-	public static Double getScreenWidth() {
-		return screenDimensions.getWidth();
-	}
-
-	public static Double getScreenHeight() {
-		return screenDimensions.getHeight();
-	}
-
-	public static Double getWidth(String sceneId) {
-		checkScene(sceneId);
-		return sceneMap.get(sceneId).getWidth();
-	}
-
-	public static Double getHeight(String sceneId) {
-		checkScene(sceneId);
-		return sceneMap.get(sceneId).getHeight();
-	}
-
-	/**
-	 * Private Methods
-	 */
-
-	private static void checkScene(String sceneId) {
-		if (!sceneMap.containsKey(sceneId)) {
-			throw noSceneError(sceneId);
-		}
-	}
-
-	private static UnsupportedOperationException noSceneError(String sceneId) {
-		String message = "* Scene " + sceneId + " does not exist, you need to run SceneOne.set(sceneId, Parent).build(); to complete a Scene *";
-		String frame = getBoardersFor(message);
-		String finalMessage = "\n\n"+ frame + "\n" + message + "\n" + frame + "\n";
-		return new UnsupportedOperationException(finalMessage);
-	}
-
-	private static UnsupportedOperationException centerOnWait() {
-		String message = "* When you call showAndWait() while also choosing to center your Scene, you must use centered(width, height) in your build statement *";
-		String frame = getBoardersFor(message);
-		String finalMessage = "\n\n"+ frame + "\n" + message + "\n" + frame + "\n";
-		return new UnsupportedOperationException(finalMessage);
-	}
-
-	private static String getBoardersFor(String message) {
-		int length = message.length();
-		StringBuilder frame = new StringBuilder();
-		for (int x = 0; x < length; x++) {
-			frame.append("*");
-		}
-		return frame.toString();
-	}
+	/*SceneObject Class*/
 
 	private static class SceneObject {
 
@@ -563,27 +324,31 @@ public class SceneOne {
 		}
 
 		Dimension screenDimensions = Toolkit.getDefaultToolkit().getScreenSize();
-		private final double  screenWidth  = screenDimensions.getWidth();
-		private final double  screenHeight = screenDimensions.getHeight();
-		private       Stage   stage;
-		private final boolean centered;
-		private       boolean hasShown     = false;
-		private       double  posX;
-		private       double  posY;
-		private       Size    size;
-		private       Scene   scene;
-		private       boolean                 hidden            = false;
-		private final ChangeListener<Boolean> lostFocusListener = (observable, oldValue, newValue) -> {
+		private final double                          screenWidth       = screenDimensions.getWidth();
+		private final double                          screenHeight      = screenDimensions.getHeight();
+		private       Stage                           stage;
+		private final boolean                         centered;
+		private       boolean                         hasShown          = false;
+		private       double                          posX;
+		private       double                          posY;
+		private       double                          splitFactorX;
+		private       double                          splitFactorY;
+		private       Size                            size;
+		private       Scene                           scene;
+		private       boolean                         hidden            = false;
+		private final ChangeListener<? super Boolean> lostFocusListener = (observable, oldValue, newValue) -> {
 			if (!newValue) {
 				this.hidden = true;
 				Platform.runLater(() -> this.stage.hide());
 			}
 		};
 
-		public SceneObject(Builder build) {
+		public SceneObject(@NotNull Builder build) {
 			this.centered = build.centered;
 			this.posX     = build.posX;
-			this.posY     = build.posY;
+			this.posY         = build.posY;
+			this.splitFactorX = build.splitFactorX;
+			this.splitFactorY = build.splitFactorY;
 
 			stage = new Stage();
 			scene = new Scene(build.parent);
@@ -609,6 +374,17 @@ public class SceneOne {
 			if(build.hideOnLostFocus) {
 				stage.focusedProperty().addListener(lostFocusListener);
 			}
+			else if (build.lostFocusListener != null) {
+				stage.focusedProperty().addListener(build.lostFocusListener);
+			}
+		}
+
+		public void setOnKeyPressedEvent(EventHandler<? super KeyEvent> keyPressedEventHandler) {
+			scene.setOnKeyPressed(keyPressedEventHandler);
+		}
+
+		public void setOnKeyReleasedEvent(EventHandler<? super KeyEvent> keyReleasedEventHandler) {
+			scene.setOnKeyReleased(keyReleasedEventHandler);
 		}
 
 		public void setOnShowingEvent(EventHandler<WindowEvent> onShowingEventHandler) {
@@ -631,6 +407,24 @@ public class SceneOne {
 			stage.setOnCloseRequest(onCloseEventHandler);
 		}
 
+		public void setOnWindowCloseEvent(EventHandler<WindowEvent> onWindowCloseEventHandler) {
+			scene.getWindow().setOnCloseRequest(onWindowCloseEventHandler);
+		}
+
+		public void setOnLostFocus(ChangeListener<? super Boolean> lostFocusListener) {
+			stage.focusedProperty().removeListener(this.lostFocusListener);
+			stage.focusedProperty().addListener(lostFocusListener);
+		}
+
+		public void setHideOnLostFocus(boolean hideOnLostFocus) {
+			if (hideOnLostFocus) {
+				this.stage.focusedProperty().addListener(lostFocusListener);
+			}
+			else {
+				this.stage.focusedProperty().removeListener(lostFocusListener);
+			}
+		}
+
 		private void findCenter() {
 			if(size != null) {
 				posX = (screenWidth - size.getWidth()) / 2;
@@ -641,6 +435,20 @@ public class SceneOne {
 		private void preProcess() {
 			if (size != null) {
 				size.resize();
+				if(splitFactorX > 0 && splitFactorY > 0) {
+					double xSplit = size.getWidth() * splitFactorX;
+					double ySplit = size.getHeight() * splitFactorY;
+					stage.setX(posX - xSplit);
+					stage.setY(posY - ySplit);
+				}
+				else if(splitFactorX > 0) {
+					double xSplit = size.getWidth() * splitFactorX;
+					stage.setX(posX - xSplit);
+				}
+				else if (splitFactorY > 0) {
+					double ySplit = size.getHeight() * splitFactorY;
+					stage.setY(posY - ySplit);
+				}
 			}
 			if(posX > 0 && posY > 0) {
 				stage.setX(posX);
@@ -674,7 +482,31 @@ public class SceneOne {
 				stage.sizeToScene();
 			if(centered)
 				stage.centerOnScreen();
+			checkSplit();
 			hasShown = true;
+		}
+
+		public void checkSplit() {
+			if(splitFactorX > 0 && splitFactorY > 0) {
+				double xSplit = size.getWidth() * splitFactorX;
+				double ySplit = size.getHeight() * splitFactorY;
+				stage.setX(posX - xSplit);
+				stage.setY(posY - ySplit);
+			}
+			else if (splitFactorX > 0) {
+				double xSplit = size.getWidth() * splitFactorX;
+				stage.setX(posX - xSplit);
+			}
+			else if (splitFactorY > 0) {
+				double ySplit = size.getHeight() * splitFactorY;
+				stage.setY(posY - ySplit);
+			}
+		}
+
+		public void showAndWait() {
+			preProcess();
+			if (centered) {findCenter();}
+			stage.showAndWait();
 		}
 
 		public void reShow() {
@@ -684,11 +516,26 @@ public class SceneOne {
 			}
 		}
 
-		public void showAndWait() {
-			if (centered)
-				findCenter();
-			preProcess();
-			stage.showAndWait();
+		public void showSplit(double X, double Y, double splitFactorX, double splitFactorY) {
+			this.posX = X;
+			this.posY         = Y;
+			this.splitFactorX = splitFactorX;
+			this.splitFactorY = splitFactorY;
+			show();
+		}
+
+		public void showSplitX(double X, double splitFactorX) {
+			this.posX         = X;
+			this.splitFactorX = splitFactorX;
+			this.splitFactorY = -1;
+			show();
+		}
+
+		public void showSplitY(double Y, double splitFactorY) {
+			this.posY         = Y;
+			this.splitFactorY = splitFactorY;
+			this.splitFactorX = -1;
+			show();
 		}
 
 		public void resize(double width, double height) {
@@ -767,15 +614,6 @@ public class SceneOne {
 				stage.hide();
 		}
 
-		public void setHideOnLostFocus(boolean hideOnLostFocus, String sceneId) {
-			if (hideOnLostFocus) {
-				this.stage.focusedProperty().addListener(lostFocusListener);
-			}
-			else {
-				this.stage.focusedProperty().removeListener(lostFocusListener);
-			}
-		}
-
 		public double getWidth() {
 			return stage.getWidth();
 		}
@@ -802,11 +640,14 @@ public class SceneOne {
 
 		public void addStyleSheet(String styleSheet) {
 			scene.getStylesheets().add(styleSheet);
+			scene.getRoot().getStylesheets().add(styleSheet);
 		}
 
 		public void setStyleSheets(String... styleSheets) {
 			scene.getStylesheets().clear();
+			scene.getRoot().getStylesheets().clear();
 			scene.getStylesheets().addAll(styleSheets);
+			scene.getRoot().getStylesheets().addAll(styleSheets);
 		}
 
 		public void setStyleSheet(String... styleSheets) {
@@ -816,11 +657,291 @@ public class SceneOne {
 				}
 			}
 		}
+	}
 
-		public void destroy() {
-			stage.close();
-			stage = null;
-			scene = null;
+
+	/*Public Methods*/
+
+	public static Builder set(String sceneId, Parent parent) {
+		return new Builder(sceneId, parent);
+	}
+
+	public static Builder set(String sceneId, Parent parent, double width, double height) {
+		return new Builder(sceneId, parent, width, height);
+	}
+
+	public static void toggleFullScreen(String sceneId) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).toggleFullScreen();
+	}
+
+	/*Actions*/
+
+	public static void show(String sceneId) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).show();
+	}
+
+	public static void showAndWait(String sceneId) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).showAndWait();
+	}
+
+	public static void hide(String sceneId) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).hide();
+	}
+
+	public static void unHide(String sceneId) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).unHide();
+	}
+
+	public static void reSize(String sceneId, double width, double height) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).resize(width,height);
+	}
+
+	public static void close(String sceneId) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).close();
+	}
+
+	public static void closeIfShowing(String sceneId) {
+		if(sceneMap.containsKey(sceneId)) {
+			sceneMap.get(sceneId).closeIfShowing();
 		}
+	}
+
+	public static void hideIfShowing(String sceneId) {
+		if(sceneMap.containsKey(sceneId)) {
+			sceneMap.get(sceneId).hideIfShowing();
+		}
+	}
+
+	public static void remove(String sceneId) {
+		sceneMap.remove(sceneId);
+	}
+
+	public static void center(String sceneId) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).center();
+	}
+
+	public static void reCenterScene(String sceneId) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).reCenterScene();
+	}
+
+	public static void reShow(String sceneId) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).reShow();
+	}
+
+	public static void showSplitXY(String sceneId, double mouseX, double mouseY, double factorX, double factorY) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).showSplit(mouseX, mouseY, factorX, factorY);
+	}
+
+	public static void showSplitX(String sceneId, double mouseX, double factorX) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).showSplitX(mouseX, factorX);
+	}
+
+	public static void showSplitY(String sceneId, double mouseY, double factorY) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).showSplitY(mouseY, factorY);
+	}
+
+
+	/*Setters*/
+
+	public static void setStyleSheetsForAll(String... styleSheets) {
+		for (String sceneId : sceneMap.keySet()) {
+			SceneObject so = sceneMap.get(sceneId);
+			if (so != null) {
+				so.setStyleSheets(styleSheets);
+			}
+		}
+	}
+
+	public static void setHeight(String sceneId, double height) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).setHeight(height);
+	}
+
+	public static void setWidth(String sceneId, double width) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).setWidth(width);
+	}
+
+	public static void setPosition(String sceneId, double posX, double posY) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).setPosition(posX, posY);
+	}
+
+	public static void setParent(String sceneId, Parent parent) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).setParent(parent);
+	}
+
+	public static void setTitle(String sceneId, String title) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).setTitle(title);
+	}
+
+	public static void setOnKeyPressedEvent(String sceneId, EventHandler<? super KeyEvent> keyPressedEventHandler) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).setOnKeyPressedEvent(keyPressedEventHandler);
+	}
+
+	public static void setOnKeyReleasedEvent(String sceneId, EventHandler<? super KeyEvent> keyReleasedEventHandler) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).setOnKeyReleasedEvent(keyReleasedEventHandler);
+	}
+
+	public static void setOnShowingEvent(String sceneId, EventHandler<WindowEvent> onShowingEventHandler) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).setOnShowingEvent(onShowingEventHandler);
+	}
+
+	public static void setOnShownEvent(String sceneId, EventHandler<WindowEvent> onShownEventHandler) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).setOnShownEvent(onShownEventHandler);
+	}
+
+	public static void setOnHidingEvent(String sceneId, EventHandler<WindowEvent> onHidingEventHandler) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).setOnHidingEvent(onHidingEventHandler);
+	}
+
+	public static void setOnHiddenEvent(String sceneId, EventHandler<WindowEvent> onHiddenEventHandler) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).setOnHiddenEvent(onHiddenEventHandler);
+	}
+
+	public static void setOnCloseEvent(String sceneId, EventHandler<WindowEvent> onCloseEventHandler) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).setOnCloseEvent(onCloseEventHandler);
+	}
+
+	public static void setOnWindowCloseEvent(String sceneId, EventHandler<WindowEvent> onWindowCloseEventHandler) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).setOnWindowCloseEvent(onWindowCloseEventHandler);
+	}
+
+	public static void setStyleSheets(String sceneId, String... styleSheets) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).setStyleSheets(styleSheets);
+	}
+
+	public static void addStyleSheet(String sceneId, String styleSheet) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).addStyleSheet(styleSheet);
+	}
+
+	public static void clearStyleSheets(String sceneId) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).clearStyleSheets();
+	}
+
+	public static void setOnLostFocus(String sceneId, ChangeListener<? super Boolean> lostFocusListener) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).setOnLostFocus(lostFocusListener);
+	}
+
+	public static void setHideOnLostFocus(String sceneId) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).setHideOnLostFocus(true);
+	}
+
+	public static void setHideOnLostFocus(String sceneId, boolean hideOnLostFocus) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).setHideOnLostFocus(hideOnLostFocus);
+	}
+
+	/*Getters*/
+
+	public static Stage getStage(String sceneId) {
+		checkScene(sceneId);
+		return sceneMap.get(sceneId).getStage();
+	}
+
+	public static boolean isShowing(String sceneId) {
+		checkScene(sceneId);
+		return sceneMap.get(sceneId).getStage().isShowing();
+	}
+
+	public static Scene getScene(String sceneId) {
+		checkScene(sceneId);
+		return sceneMap.get(sceneId).getScene();
+	}
+
+	public static Window getWindow(String sceneId) {
+		checkScene(sceneId);
+		return sceneMap.get(sceneId).getWindow();
+	}
+
+	public static boolean sceneExists(String sceneId) {
+		return sceneMap.containsKey(sceneId);
+	}
+
+	public static Window getOwner(String sceneId) {
+		checkScene(sceneId);
+		return sceneMap.get(sceneId).getStage().getOwner();
+	}
+
+	public static Dimension getScreenDimensions() {
+		return screenDimensions;
+	}
+
+	public static @NotNull Double getScreenWidth() {
+		return screenDimensions.getWidth();
+	}
+
+	public static @NotNull Double getScreenHeight() {
+		return screenDimensions.getHeight();
+	}
+
+	public static @NotNull Double getWidth(String sceneId) {
+		checkScene(sceneId);
+		return sceneMap.get(sceneId).getWidth();
+	}
+
+	public static @NotNull Double getHeight(String sceneId) {
+		checkScene(sceneId);
+		return sceneMap.get(sceneId).getHeight();
+	}
+
+
+	/*Private Methods*/
+
+	private static void checkScene(String sceneId) {
+		if (!sceneMap.containsKey(sceneId)) {
+			throw noSceneError(sceneId);
+		}
+	}
+
+	private static @NotNull UnsupportedOperationException noSceneError(String sceneId) {
+		String message = "* Scene " + sceneId + " does not exist, you need to run SceneOne.set(sceneId, Parent).build(); to complete a Scene *";
+		String frame = getBoardersFor(message);
+		String finalMessage = "\n\n"+ frame + "\n" + message + "\n" + frame + "\n";
+		return new UnsupportedOperationException(finalMessage);
+	}
+
+	private static @NotNull UnsupportedOperationException centerOnWait() {
+		String message = "* When you call showAndWait() while also choosing to center your Scene, you must use centered(width, height) in your build statement *";
+		String frame = getBoardersFor(message);
+		String finalMessage = "\n\n"+ frame + "\n" + message + "\n" + frame + "\n";
+		return new UnsupportedOperationException(finalMessage);
+	}
+
+	private static @NotNull String getBoardersFor(@NotNull String message) {
+		int length = message.length();
+		StringBuilder frame = new StringBuilder();
+		for (int x = 0; x < length; x++) {
+			frame.append("*");
+		}
+		return frame.toString();
 	}
 }
