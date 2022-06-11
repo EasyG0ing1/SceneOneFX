@@ -184,7 +184,6 @@ SceneOne.set(sceneID, parent)
 SceneOne.set(sceneID, parent, width, height)
 .size(width, height)
 .position(X, Y)
-.owner(Stage) //Assign an existing stage as this scenes owner Stage
 .centered()
 .centered(width, height) //Used when you want to call a showAndWait and you didn't specify the dimensions previously
 .hideOnLostFocus()
