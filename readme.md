@@ -174,7 +174,7 @@ public class MainScene {
 
 ## Builder Options
 
-Here are all the builder options that you can use to create your Scenes:
+Here are some of the builder options that you can use to create your Scenes:
 
 You first start out by calling a new instance of SceneOneFX's Builder class then give it a sceneID and a Parent object with
 optional scene size dimensions.
@@ -186,7 +186,7 @@ SceneOne.set(sceneID, parent, width, height)
 .position(X, Y)
 .owner(Stage) //Assign an existing stage as this scenes owner Stage
 .centered()
-.centered(width, height) //Used when you want to call a showAndWait
+.centered(width, height) //Used when you want to call a showAndWait and you didn't specify the dimensions previously
 .hideOnLostFocus()
 .hideOnLostFocus(boolean)
 .initStyle(StageStyle)
@@ -197,10 +197,14 @@ SceneOne.set(sceneID, parent, width, height)
 .onHiddenEvent(e -> myMethod())
 .onHidingEvent(e -> myMethod())
 .onCloseEvent(e -> myMethod())
-.alwaysOnTop()
+.alwaysOnTop() //Literally puts the scene on top of EVERYTHING and keeps it there until you close it.
 .show()
 .showAndWait()
+.owner(Stage) //Lets you assign the scene to another scene which will keep this scene on top of that scene
+.owner(sceneId) //as opposed to keeping it on top of ALL windows - great for dialogue windows.
 .build()
+.show()
+.showAndWait()
 ```
 
 See the Javadocs for a full list of Builder options and also look at the example programs for good
@@ -209,7 +213,8 @@ examples on using these options. I will add more to the examples in the future, 
 ## Post Build
 
 You can also change any of the above settings by simply calling SceneOne with the setting
-you wish to change and passing in the sceneId.
+you wish to change and passing in the sceneId (again, look at Javadocs for all available public methods
+or use code completion in your IDE).
 
 For example
 ```java
