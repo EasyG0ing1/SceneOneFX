@@ -27,6 +27,7 @@ public class SceneOne {
 
 	private static final Dimension screenDimensions = Toolkit.getDefaultToolkit().getScreenSize();
 	private static final Map<String,SceneObject> sceneMap = new HashMap<>();
+	private static String lastSceneShown = "";
 
 
 	/*Builder Class*/
@@ -324,6 +325,7 @@ public class SceneOne {
 		}
 
 		Dimension screenDimensions = Toolkit.getDefaultToolkit().getScreenSize();
+		private final String sceneId;
 		private final double                          screenWidth       = screenDimensions.getWidth();
 		private final double                          screenHeight      = screenDimensions.getHeight();
 		private       Stage                           stage;
@@ -344,6 +346,7 @@ public class SceneOne {
 		};
 
 		public SceneObject(@NotNull Builder build) {
+			this.sceneId = build.sceneId;
 			this.centered = build.centered;
 			this.posX     = build.posX;
 			this.posY         = build.posY;
@@ -484,6 +487,7 @@ public class SceneOne {
 				stage.centerOnScreen();
 			checkSplit();
 			hasShown = true;
+			lastSceneShown = this.sceneId;
 		}
 
 		public void checkSplit() {
@@ -506,11 +510,13 @@ public class SceneOne {
 		public void showAndWait() {
 			preProcess();
 			if (centered) {findCenter();}
+			lastSceneShown = this.sceneId;
 			stage.showAndWait();
 		}
 
 		public void reShow() {
 			if(hasShown){
+				lastSceneShown = this.sceneId;
 				stage.show();
 				stage.toFront();
 			}
@@ -753,6 +759,12 @@ public class SceneOne {
 		sceneMap.get(sceneId).showSplitY(mouseY, factorY);
 	}
 
+	public static void showLastScene() {
+		if(!lastSceneShown.isEmpty()) {
+			checkScene(lastSceneShown);
+			sceneMap.get(lastSceneShown).reShow();
+		}
+	}
 
 	/*Setters*/
 
@@ -861,6 +873,10 @@ public class SceneOne {
 	}
 
 	/*Getters*/
+
+	public static boolean lastSceneAvailable() {
+		return !lastSceneShown.isEmpty();
+	}
 
 	public static Stage getStage(String sceneId) {
 		checkScene(sceneId);
