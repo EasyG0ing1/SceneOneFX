@@ -103,6 +103,13 @@ SceneOne.show(sceneID);
 SceneOne.showAndWait(sceneID);
 ```
 
+## Show the Scene before the one currently showing
+```java
+if (SceneOne.lastSceneAvailable()) {
+  SceneOne.showLastScene();
+}
+```
+
 ## Core Objects
 
 If needed, you can gain access to any of the core objects that are involved in a JavaFX Scene
