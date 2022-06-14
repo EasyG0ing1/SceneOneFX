@@ -51,21 +51,21 @@ The project is available as a Maven dependency on Central. Add the following to 
 <dependency>
     <groupId>com.simtechdata</groupId>
     <artifactId>SceneOneFX</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
 </dependency>
 ```
 
 Or, if using Gradle to build, add this to your Gradle build file
 
 ```groovy
-compile group: 'com.simtechdata', name: 'SceneOneFX', version: 1.2.1
+compile group: 'com.simtechdata', name: 'SceneOneFX', version: 1.2.2
 ```
 
 You can even use it from a Groovy script!
 
 ```groovy
 @Grapes(
-  @Grab(group='com.simtechdata', module='SceneOneFX', version=1.2.1)
+  @Grab(group='com.simtechdata', module='SceneOneFX', version=1.2.2)
 )
 ```
 
@@ -327,6 +327,11 @@ To add your project to the list here, you can also submit a pull request after c
 ---
 Version Update Notes
 ---
+
+* **1.2.2**
+  * Added ability to start a scene by passing in a Scene object to the Builder instead of just a Parent object
+  * Added swapScene() method in addition to the existing setParent() method where swapScene swaps the Scene passed out onto the existing Stage.
+  * Added example program that demonstrates Scene swapping.
 
 * **1.2.1**
   * Added lastSceneAvailable() method

@@ -25,9 +25,9 @@ public class SceneOne {
 		HEIGHT
 	}
 
-	private static final Dimension screenDimensions = Toolkit.getDefaultToolkit().getScreenSize();
-	private static final Map<String,SceneObject> sceneMap = new HashMap<>();
-	private static String lastSceneShown = "";
+	private static final Dimension                screenDimensions = Toolkit.getDefaultToolkit().getScreenSize();
+	private static final Map<String, SceneObject> sceneMap         = new HashMap<>();
+	private static       String                   lastSceneShown   = "";
 
 
 	/*Builder Class*/
@@ -46,8 +46,21 @@ public class SceneOne {
 			this.height  = height;
 		}
 
+		public Builder(String sceneId, Scene scene) {
+			this.sceneId = sceneId;
+			this.scene  = scene;
+		}
+
+		public Builder(String sceneId, Scene scene, double width, double height) {
+			this.sceneId = sceneId;
+			this.scene  = scene;
+			this.width   = width;
+			this.height  = height;
+		}
+
 		private final String                          sceneId;
-		private final Parent                          parent;
+		private       Scene                           scene;
+		private       Parent                          parent;
 		private final ObservableList<String>          styleSheets               = FXCollections.observableArrayList();
 		private       double                          width                     = -1;
 		private       double                          height                    = -1;
@@ -73,15 +86,13 @@ public class SceneOne {
 		private       Stage                           owner                     = null;
 
 		public Builder owner(Stage owner) {
-			if(owner != null)
-				this.owner = owner;
+			if (owner != null) {this.owner = owner;}
 			return this;
 		}
 
 		public Builder owner(String sceneId) {
-			if(sceneId != null) {
-				if(sceneMap.containsKey(sceneId))
-					this.owner = sceneMap.get(sceneId).getStage();
+			if (sceneId != null) {
+				if (sceneMap.containsKey(sceneId)) {this.owner = sceneMap.get(sceneId).getStage();}
 			}
 			return this;
 		}
@@ -98,8 +109,8 @@ public class SceneOne {
 
 		public Builder centered(double width, double height) {
 			this.centered = true;
-			this.width = width;
-			this.height = height;
+			this.width    = width;
+			this.height   = height;
 			return this;
 		}
 
@@ -120,38 +131,33 @@ public class SceneOne {
 		}
 
 		public Builder initStyle(StageStyle style) {
-			if (style != null)
-				this.style = style;
+			if (style != null) {this.style = style;}
 			return this;
 		}
 
 		public Builder styleSheets(String... styleSheets) {
-			if(styleSheets != null)
-				this.styleSheets.addAll(styleSheets);
+			if (styleSheets != null) {this.styleSheets.addAll(styleSheets);}
 			return this;
 		}
 
 		public Builder modality(Modality modality) {
-			if(modality != null)
-				this.modality = modality;
+			if (modality != null) {this.modality = modality;}
 			return this;
 		}
 
 		public Builder title(String title) {
-			if (title != null)
-				if(!title.isEmpty())
-					this.title = title;
+			if (title != null) {if (!title.isEmpty()) {this.title = title;}}
 			return this;
 		}
 
 		public Builder size(double width, double height) {
-			this.width = width;
+			this.width  = width;
 			this.height = height;
 			return this;
 		}
 
 		public Builder splitXY(double posX, double posY, double xFactor, double yFactor) {
-			this.posX = posX;
+			this.posX         = posX;
 			this.posY         = posY;
 			this.splitFactorX = xFactor;
 			this.splitFactorY = yFactor;
@@ -171,50 +177,42 @@ public class SceneOne {
 		}
 
 		public Builder onKeyPressed(EventHandler<? super KeyEvent> keyPressedEventHandler) {
-			if(keyPressedEventHandler != null)
-				this.keyPressedEventHandler = keyPressedEventHandler;
+			if (keyPressedEventHandler != null) {this.keyPressedEventHandler = keyPressedEventHandler;}
 			return this;
 		}
 
 		public Builder onKeyReleased(EventHandler<? super KeyEvent> keyReleasedEventHandler) {
-			if(keyReleasedEventHandler != null)
-				this.keyReleasedEventHandler = keyReleasedEventHandler;
+			if (keyReleasedEventHandler != null) {this.keyReleasedEventHandler = keyReleasedEventHandler;}
 			return this;
 		}
 
 		public Builder onShowingEvent(EventHandler<WindowEvent> onShowingEventHandler) {
-			if(onShowingEventHandler != null)
-				this.onShowingEventHandler = onShowingEventHandler;
+			if (onShowingEventHandler != null) {this.onShowingEventHandler = onShowingEventHandler;}
 			return this;
 		}
 
 		public Builder onShownEvent(EventHandler<WindowEvent> onShownEventHandler) {
-			if(onShownEventHandler != null)
-				this.onShownEventHandler = onShownEventHandler;
+			if (onShownEventHandler != null) {this.onShownEventHandler = onShownEventHandler;}
 			return this;
 		}
 
 		public Builder onHidingEvent(EventHandler<WindowEvent> onHidingEventHandler) {
-			if(onHidingEventHandler != null)
-				this.onHidingEventHandler = onHidingEventHandler;
+			if (onHidingEventHandler != null) {this.onHidingEventHandler = onHidingEventHandler;}
 			return this;
 		}
 
 		public Builder onHiddenEvent(EventHandler<WindowEvent> onHiddenEventHandler) {
-			if(onHiddenEventHandler != null)
-				this.onHiddenEventHandler = onHiddenEventHandler;
+			if (onHiddenEventHandler != null) {this.onHiddenEventHandler = onHiddenEventHandler;}
 			return this;
 		}
 
 		public Builder onCloseEvent(EventHandler<WindowEvent> onCloseEventHandler) {
-			if(onCloseEventHandler != null)
-				this.onCloseEventHandler = onCloseEventHandler;
+			if (onCloseEventHandler != null) {this.onCloseEventHandler = onCloseEventHandler;}
 			return this;
 		}
 
 		public Builder onWindowCloseEvent(EventHandler<WindowEvent> onWindowCloseEventHandler) {
-			if(onWindowCloseEventHandler != null)
-				this.onWindowCloseEventHandler = onWindowCloseEventHandler;
+			if (onWindowCloseEventHandler != null) {this.onWindowCloseEventHandler = onWindowCloseEventHandler;}
 			return this;
 		}
 
@@ -244,8 +242,8 @@ public class SceneOne {
 		}
 
 		public void showAndWait() {
-			if(centered) {
-				if(width < 0 || height < 0) {
+			if (centered) {
+				if (width < 0 || height < 0) {
 					throw centerOnWait();
 				}
 			}
@@ -261,13 +259,13 @@ public class SceneOne {
 
 		protected static class Size {
 
-			private final Map<SIZE,Double> VALUES = new HashMap<>();
+			private final Map<SIZE, Double> VALUES = new HashMap<>();
 
 			private final Stage stage;
 
 			public Size(Stage stage, double width, double height) {
-				VALUES.put(WIDTH,width);
-				VALUES.put(HEIGHT,height);
+				VALUES.put(WIDTH, width);
+				VALUES.put(HEIGHT, height);
 				this.stage = stage;
 			}
 
@@ -317,7 +315,7 @@ public class SceneOne {
 			}
 
 			public void resize() {
-				if(isSet()) {
+				if (isSet()) {
 					stage.setWidth(VALUES.get(WIDTH));
 					stage.setHeight(VALUES.get(HEIGHT));
 				}
@@ -325,10 +323,11 @@ public class SceneOne {
 		}
 
 		Dimension screenDimensions = Toolkit.getDefaultToolkit().getScreenSize();
-		private final String sceneId;
+		private       Stage                           stage;
+		private       Scene                           scene;
+		private final String                          sceneId;
 		private final double                          screenWidth       = screenDimensions.getWidth();
 		private final double                          screenHeight      = screenDimensions.getHeight();
-		private       Stage                           stage;
 		private final boolean                         centered;
 		private       boolean                         hasShown          = false;
 		private       double                          posX;
@@ -336,7 +335,6 @@ public class SceneOne {
 		private       double                          splitFactorX;
 		private       double                          splitFactorY;
 		private       Size                            size;
-		private       Scene                           scene;
 		private       boolean                         hidden            = false;
 		private final ChangeListener<? super Boolean> lostFocusListener = (observable, oldValue, newValue) -> {
 			if (!newValue) {
@@ -346,15 +344,17 @@ public class SceneOne {
 		};
 
 		public SceneObject(@NotNull Builder build) {
-			this.sceneId = build.sceneId;
-			this.centered = build.centered;
-			this.posX     = build.posX;
+			this.sceneId      = build.sceneId;
+			this.scene        = build.scene;
+			this.centered     = build.centered;
+			this.posX         = build.posX;
 			this.posY         = build.posY;
 			this.splitFactorX = build.splitFactorX;
 			this.splitFactorY = build.splitFactorY;
 
 			stage = new Stage();
-			scene = new Scene(build.parent);
+			if (scene == null)
+				scene = new Scene(build.parent);
 			stage.setScene(scene);
 			stage.setTitle(build.title);
 			scene.getStylesheets().addAll(build.styleSheets);
@@ -374,7 +374,7 @@ public class SceneOne {
 			if (build.width != -1 && build.height != -1) {
 				size = new Size(stage, build.width, build.height);
 			}
-			if(build.hideOnLostFocus) {
+			if (build.hideOnLostFocus) {
 				stage.focusedProperty().addListener(lostFocusListener);
 			}
 			else if (build.lostFocusListener != null) {
@@ -429,7 +429,7 @@ public class SceneOne {
 		}
 
 		private void findCenter() {
-			if(size != null) {
+			if (size != null) {
 				posX = (screenWidth - size.getWidth()) / 2;
 				posY = (screenHeight - size.getHeight()) / 2;
 			}
@@ -438,13 +438,13 @@ public class SceneOne {
 		private void preProcess() {
 			if (size != null) {
 				size.resize();
-				if(splitFactorX > 0 && splitFactorY > 0) {
+				if (splitFactorX > 0 && splitFactorY > 0) {
 					double xSplit = size.getWidth() * splitFactorX;
 					double ySplit = size.getHeight() * splitFactorY;
 					stage.setX(posX - xSplit);
 					stage.setY(posY - ySplit);
 				}
-				else if(splitFactorX > 0) {
+				else if (splitFactorX > 0) {
 					double xSplit = size.getWidth() * splitFactorX;
 					stage.setX(posX - xSplit);
 				}
@@ -453,7 +453,7 @@ public class SceneOne {
 					stage.setY(posY - ySplit);
 				}
 			}
-			if(posX > 0 && posY > 0) {
+			if (posX > 0 && posY > 0) {
 				stage.setX(posX);
 				stage.setY(posY);
 			}
@@ -461,12 +461,12 @@ public class SceneOne {
 
 		public void reCenterScene() {
 			new Thread(() -> {
-				double sceneWidth = scene.getWidth();
-				double sceneHeight = scene.getHeight();
-				double screenWidth = screenDimensions.getWidth();
+				double sceneWidth   = scene.getWidth();
+				double sceneHeight  = scene.getHeight();
+				double screenWidth  = screenDimensions.getWidth();
 				double screenHeight = screenDimensions.getHeight();
-				double posX = (screenWidth - sceneWidth) - (.5 * (screenWidth - sceneWidth));
-				double posY = (screenHeight - sceneHeight) - (.5 * (screenHeight - sceneHeight));
+				double posX         = (screenWidth - sceneWidth) - (.5 * (screenWidth - sceneWidth));
+				double posY         = (screenHeight - sceneHeight) - (.5 * (screenHeight - sceneHeight));
 				Platform.runLater(() -> {
 					scene.getWindow().setX(posX);
 					scene.getWindow().setY(posY);
@@ -475,23 +475,21 @@ public class SceneOne {
 		}
 
 		public void show() {
-			if(hasShown) {
+			if (hasShown) {
 				reShow();
 				return;
 			}
 			preProcess();
 			stage.show();
-			if(size == null)
-				stage.sizeToScene();
-			if(centered)
-				stage.centerOnScreen();
+			if (size == null) {stage.sizeToScene();}
+			if (centered) {stage.centerOnScreen();}
 			checkSplit();
-			hasShown = true;
+			hasShown       = true;
 			lastSceneShown = this.sceneId;
 		}
 
 		public void checkSplit() {
-			if(splitFactorX > 0 && splitFactorY > 0) {
+			if (splitFactorX > 0 && splitFactorY > 0) {
 				double xSplit = size.getWidth() * splitFactorX;
 				double ySplit = size.getHeight() * splitFactorY;
 				stage.setX(posX - xSplit);
@@ -515,7 +513,7 @@ public class SceneOne {
 		}
 
 		public void reShow() {
-			if(hasShown){
+			if (hasShown) {
 				lastSceneShown = this.sceneId;
 				stage.show();
 				stage.toFront();
@@ -523,7 +521,7 @@ public class SceneOne {
 		}
 
 		public void showSplit(double X, double Y, double splitFactorX, double splitFactorY) {
-			this.posX = X;
+			this.posX         = X;
 			this.posY         = Y;
 			this.splitFactorX = splitFactorX;
 			this.splitFactorY = splitFactorY;
@@ -545,10 +543,8 @@ public class SceneOne {
 		}
 
 		public void resize(double width, double height) {
-			if(size == null)
-				size = new Size(stage, width,height);
-			else
-				size.set(width,height);
+			if (size == null) {size = new Size(stage, width, height);}
+			else {size.set(width, height);}
 			size.resize();
 		}
 
@@ -564,6 +560,11 @@ public class SceneOne {
 			stage.setScene(scene);
 		}
 
+		public void setScene(Scene scene) {
+			this.scene = scene;
+			stage.setScene(this.scene);
+		}
+
 		public void setTitle(String title) {
 			stage.setTitle(title);
 		}
@@ -577,13 +578,11 @@ public class SceneOne {
 		}
 
 		public void setOnKeyPressed(EventHandler<? super KeyEvent> keyPressedEventHandler) {
-			if(keyPressedEventHandler != null)
-				scene.setOnKeyPressed(keyPressedEventHandler);
+			if (keyPressedEventHandler != null) {scene.setOnKeyPressed(keyPressedEventHandler);}
 		}
 
 		public void setOnKeyReleased(EventHandler<? super KeyEvent> keyReleasedEventHandler) {
-			if(keyReleasedEventHandler != null)
-				scene.setOnKeyReleased(keyReleasedEventHandler);
+			if (keyReleasedEventHandler != null) {scene.setOnKeyReleased(keyReleasedEventHandler);}
 		}
 
 		public void toggleFullScreen() {
@@ -596,7 +595,7 @@ public class SceneOne {
 		}
 
 		public void unHide() {
-			if(hidden) {
+			if (hidden) {
 				stage.show();
 				hidden = false;
 			}
@@ -611,13 +610,11 @@ public class SceneOne {
 		}
 
 		public void closeIfShowing() {
-			if(stage.isShowing())
-				stage.close();
+			if (stage.isShowing()) {stage.close();}
 		}
 
 		public void hideIfShowing() {
-			if(stage.isShowing())
-				stage.hide();
+			if (stage.isShowing()) {stage.hide();}
 		}
 
 		public double getWidth() {
@@ -676,6 +673,14 @@ public class SceneOne {
 		return new Builder(sceneId, parent, width, height);
 	}
 
+	public static Builder set(String sceneId, Scene scene) {
+		return new Builder(sceneId, scene);
+	}
+
+	public static Builder set(String sceneId, Scene scene, double width, double height) {
+		return new Builder(sceneId, scene, width, height);
+	}
+
 	public static void toggleFullScreen(String sceneId) {
 		checkScene(sceneId);
 		sceneMap.get(sceneId).toggleFullScreen();
@@ -705,7 +710,7 @@ public class SceneOne {
 
 	public static void reSize(String sceneId, double width, double height) {
 		checkScene(sceneId);
-		sceneMap.get(sceneId).resize(width,height);
+		sceneMap.get(sceneId).resize(width, height);
 	}
 
 	public static void close(String sceneId) {
@@ -714,13 +719,13 @@ public class SceneOne {
 	}
 
 	public static void closeIfShowing(String sceneId) {
-		if(sceneMap.containsKey(sceneId)) {
+		if (sceneMap.containsKey(sceneId)) {
 			sceneMap.get(sceneId).closeIfShowing();
 		}
 	}
 
 	public static void hideIfShowing(String sceneId) {
-		if(sceneMap.containsKey(sceneId)) {
+		if (sceneMap.containsKey(sceneId)) {
 			sceneMap.get(sceneId).hideIfShowing();
 		}
 	}
@@ -760,7 +765,7 @@ public class SceneOne {
 	}
 
 	public static void showLastScene() {
-		if(!lastSceneShown.isEmpty()) {
+		if (!lastSceneShown.isEmpty()) {
 			checkScene(lastSceneShown);
 			sceneMap.get(lastSceneShown).reShow();
 		}
@@ -795,6 +800,16 @@ public class SceneOne {
 	public static void setParent(String sceneId, Parent parent) {
 		checkScene(sceneId);
 		sceneMap.get(sceneId).setParent(parent);
+	}
+
+	public static void setScene(String sceneId, Scene scene) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).setScene(scene);
+	}
+
+	public static void swapScene(String sceneId, Scene scene) {
+		checkScene(sceneId);
+		sceneMap.get(sceneId).setScene(scene);
 	}
 
 	public static void setTitle(String sceneId, String title) {
@@ -939,22 +954,22 @@ public class SceneOne {
 	}
 
 	private static @NotNull UnsupportedOperationException noSceneError(String sceneId) {
-		String message = "* Scene " + sceneId + " does not exist, you need to run SceneOne.set(sceneId, Parent).build(); to complete a Scene *";
-		String frame = getBoardersFor(message);
-		String finalMessage = "\n\n"+ frame + "\n" + message + "\n" + frame + "\n";
+		String message      = "* Scene " + sceneId + " does not exist, you need to run SceneOne.set(sceneId, Parent).build(); to complete a Scene *";
+		String frame        = getBoardersFor(message);
+		String finalMessage = "\n\n" + frame + "\n" + message + "\n" + frame + "\n";
 		return new UnsupportedOperationException(finalMessage);
 	}
 
 	private static @NotNull UnsupportedOperationException centerOnWait() {
-		String message = "* When you call showAndWait() while also choosing to center your Scene, you must use centered(width, height) in your build statement *";
-		String frame = getBoardersFor(message);
-		String finalMessage = "\n\n"+ frame + "\n" + message + "\n" + frame + "\n";
+		String message      = "* When you call showAndWait() while also choosing to center your Scene, you must use centered(width, height) in your build statement *";
+		String frame        = getBoardersFor(message);
+		String finalMessage = "\n\n" + frame + "\n" + message + "\n" + frame + "\n";
 		return new UnsupportedOperationException(finalMessage);
 	}
 
 	private static @NotNull String getBoardersFor(@NotNull String message) {
-		int length = message.length();
-		StringBuilder frame = new StringBuilder();
+		int           length = message.length();
+		StringBuilder frame  = new StringBuilder();
 		for (int x = 0; x < length; x++) {
 			frame.append("*");
 		}
