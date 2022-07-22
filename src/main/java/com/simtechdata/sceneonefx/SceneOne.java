@@ -25,7 +25,6 @@ public class SceneOne {
 		HEIGHT
 	}
 
-	private static final Dimension                screenDimensions = Toolkit.getDefaultToolkit().getScreenSize();
 	private static final Map<String, SceneObject> sceneMap         = new HashMap<>();
 	private static       String                   lastSceneShown   = "";
 
@@ -48,12 +47,12 @@ public class SceneOne {
 
 		public Builder(String sceneId, Scene scene) {
 			this.sceneId = sceneId;
-			this.scene  = scene;
+			this.scene   = scene;
 		}
 
 		public Builder(String sceneId, Scene scene, double width, double height) {
 			this.sceneId = sceneId;
-			this.scene  = scene;
+			this.scene   = scene;
 			this.width   = width;
 			this.height  = height;
 		}
@@ -84,6 +83,7 @@ public class SceneOne {
 		private       EventHandler<? super KeyEvent>  keyPressedEventHandler    = null;
 		private       EventHandler<? super KeyEvent>  keyReleasedEventHandler   = null;
 		private       Stage                           owner                     = null;
+		private       Stage                           stage                     = null;
 
 		public Builder owner(Stage owner) {
 			if (owner != null) {this.owner = owner;}
@@ -94,6 +94,11 @@ public class SceneOne {
 			if (sceneId != null) {
 				if (sceneMap.containsKey(sceneId)) {this.owner = sceneMap.get(sceneId).getStage();}
 			}
+			return this;
+		}
+
+		public Builder stage(Stage stage) {
+			this.stage = stage;
 			return this;
 		}
 
@@ -322,12 +327,9 @@ public class SceneOne {
 			}
 		}
 
-		Dimension screenDimensions = Toolkit.getDefaultToolkit().getScreenSize();
 		private       Stage                           stage;
 		private       Scene                           scene;
 		private final String                          sceneId;
-		private final double                          screenWidth       = screenDimensions.getWidth();
-		private final double                          screenHeight      = screenDimensions.getHeight();
 		private final boolean                         centered;
 		private       boolean                         hasShown          = false;
 		private       double                          posX;
@@ -351,10 +353,11 @@ public class SceneOne {
 			this.posY         = build.posY;
 			this.splitFactorX = build.splitFactorX;
 			this.splitFactorY = build.splitFactorY;
+			this.stage        = build.stage;
 
-			stage = new Stage();
-			if (scene == null)
-				scene = new Scene(build.parent);
+			if (stage == null) {stage = new Stage();}
+
+			if (scene == null) {scene = new Scene(build.parent);}
 			stage.setScene(scene);
 			stage.setTitle(build.title);
 			scene.getStylesheets().addAll(build.styleSheets);
@@ -430,8 +433,8 @@ public class SceneOne {
 
 		private void findCenter() {
 			if (size != null) {
-				posX = (screenWidth - size.getWidth()) / 2;
-				posY = (screenHeight - size.getHeight()) / 2;
+				posX = (Toolkit.getDefaultToolkit().getScreenSize().getWidth() - size.getWidth()) / 2;
+				posY = (Toolkit.getDefaultToolkit().getScreenSize().getHeight() - size.getHeight()) / 2;
 			}
 		}
 
@@ -463,8 +466,8 @@ public class SceneOne {
 			new Thread(() -> {
 				double sceneWidth   = scene.getWidth();
 				double sceneHeight  = scene.getHeight();
-				double screenWidth  = screenDimensions.getWidth();
-				double screenHeight = screenDimensions.getHeight();
+				double screenWidth  = Toolkit.getDefaultToolkit().getScreenSize().getWidth();
+				double screenHeight = Toolkit.getDefaultToolkit().getScreenSize().getHeight();
 				double posX         = (screenWidth - sceneWidth) - (.5 * (screenWidth - sceneWidth));
 				double posY         = (screenHeight - sceneHeight) - (.5 * (screenHeight - sceneHeight));
 				Platform.runLater(() -> {
@@ -923,15 +926,15 @@ public class SceneOne {
 	}
 
 	public static Dimension getScreenDimensions() {
-		return screenDimensions;
+		return Toolkit.getDefaultToolkit().getScreenSize();
 	}
 
 	public static @NotNull Double getScreenWidth() {
-		return screenDimensions.getWidth();
+		return Toolkit.getDefaultToolkit().getScreenSize().getWidth();
 	}
 
 	public static @NotNull Double getScreenHeight() {
-		return screenDimensions.getHeight();
+		return Toolkit.getDefaultToolkit().getScreenSize().getHeight();
 	}
 
 	public static @NotNull Double getWidth(String sceneId) {
