@@ -162,7 +162,8 @@ public enum SceneId {
     };
   }
 }
-
+```
+```Java
 public class MainScene {
   public MainScene() {
     SceneOne.set(SceneId.MAIN_SCENE.get(), content()).build();

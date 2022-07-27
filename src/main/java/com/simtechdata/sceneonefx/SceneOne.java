@@ -257,7 +257,6 @@ public class SceneOne {
 		}
 	}
 
-
 	/*SceneObject Class*/
 
 	private static class SceneObject {
