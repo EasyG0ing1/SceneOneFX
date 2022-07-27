@@ -51,25 +51,30 @@ The project is available as a Maven dependency on Central. Add the following to 
 <dependency>
     <groupId>com.simtechdata</groupId>
     <artifactId>SceneOneFX</artifactId>
-    <version>1.2.3</version>
+    <version>1.2.4</version>
 </dependency>
 ```
 
 Or, if using Gradle to build, add this to your Gradle build file
 
 ```groovy
-compile group: 'com.simtechdata', name: 'SceneOneFX', version: 1.2.3
+compile group: 'com.simtechdata', name: 'SceneOneFX', version: 1.2.4
 ```
 
 You can even use it from a Groovy script!
 
 ```groovy
 @Grapes(
-  @Grab(group='com.simtechdata', module='SceneOneFX', version=1.2.3)
+  @Grab(group='com.simtechdata', module='SceneOneFX', version=1.2.4)
 )
 ```
-
 ## Additional Features
+### Set Master Title
+
+You can set the title once, and all of your Scenes will use that title
+```java
+SceneOne.setTitle(String);
+```
 
 SceneOneFX gives you control over every aspect of your Scene.
 
@@ -328,6 +333,9 @@ To add your project to the list here, you can also submit a pull request after c
 ---
 Version Update Notes
 ---
+
+* **1.2.4**
+  * Added setTitle method 
 
 * **1.2.3**
   * Added stage(Stage) option to the Builder class. This allows you to pass in your own Stage, which will be used for that Scene.

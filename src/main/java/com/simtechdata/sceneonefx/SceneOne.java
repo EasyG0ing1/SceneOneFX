@@ -25,8 +25,9 @@ public class SceneOne {
 		HEIGHT
 	}
 
-	private static final Map<String, SceneObject> sceneMap         = new HashMap<>();
-	private static       String                   lastSceneShown   = "";
+	private static final Map<String, SceneObject> sceneMap       = new HashMap<>();
+	private static       String                   lastSceneShown = "";
+	private static       String                   masterTitle    = "";
 
 
 	/*Builder Class*/
@@ -68,7 +69,7 @@ public class SceneOne {
 		private       boolean                         centered                  = false;
 		private       boolean                         alwaysOnTop               = false;
 		private       boolean                         hideOnLostFocus           = false;
-		private       String                          title                     = "";
+		private       String                          title                     = masterTitle;
 		private       double                          posX                      = -1;
 		private       double                          posY                      = -1;
 		private       double                          splitFactorX              = -1;
@@ -774,6 +775,10 @@ public class SceneOne {
 	}
 
 	/*Setters*/
+
+	public static void setTitle(String title) {
+		masterTitle = title;
+	}
 
 	public static void setStyleSheetsForAll(String... styleSheets) {
 		for (String sceneId : sceneMap.keySet()) {
