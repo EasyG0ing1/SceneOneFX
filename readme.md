@@ -76,8 +76,6 @@ You can set the title once, and all of your Scenes will use that title
 SceneOne.setTitle(String);
 ```
 
-SceneOneFX gives you control over every aspect of your Scene.
-
 ### Size and Position
 You can also change the dimensions of the Scene in the Builder class or on the fly like so:
 ```java
