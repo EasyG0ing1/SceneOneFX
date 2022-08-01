@@ -323,6 +323,7 @@ requires com.simtechdata.sceneonefx;
 
 ## Projects using SceneOneFX
 * [GistFX](https://www.github.com/redmondSims/GistFX)
+* [AKnightsTale](https://github.com/maicol07/OOP21-knighttale)
 
 If your project uses SceneOneFX, shoot me an email [sims.mike@gmail.com](mailto:sims.mike@gmail.com) - I'd love to hear how SceneOneFX is working for you.
 
