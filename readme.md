@@ -391,11 +391,6 @@ Scene that was created for that Stage.
 Adding newStage() to all of your build sentences will cause SceneOneFX to behave as it has always behaved
 prior to version 1.3.1
 
-I did this after realizing that when I placed an event handler on a Scenes lostFocusEvent property, that event
-was being called when I simply created a new Scene, since a new Stage was also created with the new Scene.
-So there was really no way to ensure that the lostFocus event would be applied to the entire scope of the 
-application, regardless of which Scene the user might currently have open.
-
 ---
 
 Version Update Notes
