@@ -11,6 +11,9 @@ With SceneOneFX, any Scene you create can be accessed by any class in your appli
 There are also [completely runnable test applications](./src/test/java) that
 show how to use SceneOneFX in different ways.
 
+See [Single Stage Update](#single-stage-update) below for information about the recent update
+to use a single Stage for all Scenes.
+
 ## Usage
 
 SceneOneFX needs **two** items before a Scene can exist. Those items are:
@@ -51,21 +54,21 @@ The project is available as a Maven dependency on Central. Add the following to 
 <dependency>
     <groupId>com.simtechdata</groupId>
     <artifactId>SceneOneFX</artifactId>
-    <version>1.2.4</version>
+    <version>1.3.1</version>
 </dependency>
 ```
 
 Or, if using Gradle to build, add this to your Gradle build file
 
 ```groovy
-compile group: 'com.simtechdata', name: 'SceneOneFX', version: 1.2.4
+compile group: 'com.simtechdata', name: 'SceneOneFX', version: 1.3.1
 ```
 
 You can even use it from a Groovy script!
 
 ```groovy
 @Grapes(
-  @Grab(group='com.simtechdata', module='SceneOneFX', version=1.2.4)
+  @Grab(group='com.simtechdata', module='SceneOneFX', version=1.3.1)
 )
 ```
 ## Additional Features
@@ -307,6 +310,41 @@ If you need to, you can also remove a scene from SceneOne.
 SceneOne.remove(sceneID);
 ```
 
+## Quick User Responses
+SceneOneFX now has some methods in it that let you get some "quick and dirty" feedback from your
+users. Two different options exist; one where you can just pass in a yes or no question, then get
+back a response, or an option where you can pass in a question along with any number of responses
+that you wish to offer and SceneOneFX will create a button for each response, then pass back
+an integer value that is proportional to the order in which you pass in the response options, with
+0 being the first response.
+
+```Java
+int answer = SceneOne.askYesNo(sceneId,"Do you want ice cream?",300,100);
+  switch(answer) {
+  case 0: // 0 = No
+    response.setText("User DOES NOT want ice cream");
+    break;
+  case 1: // 1 = Yes
+    response.setText("User DOES want ice cream");
+    break;
+  default: // Anything else means the user closed the window without answering 
+    response.setText("User did not respond");
+}
+```
+
+See the two runnable classes under test under the ```choiceresponse``` package called: ChoiceResponse
+and YesNo. Most IDEs will let you right click on the class and simply chose run. This works well
+in IntelliJ.
+
+### Quick Messages
+You can also use SceneOneFX to show quick and dirty popup messages that only offer an OK button.
+An example of doing this exists in the same test code, but here are the two methods that you can use
+to display quick messages.
+```Java
+showMessage(sceneId, width, height, message) //Text wrapping defaults to true and alinment defaults to CENTERed
+showMessage(sceneId, width, height, message, true, Pos.CENTER) //last two options are for wrapping the text in the label and the alignment of the text within the label
+```
+
 ### Javadocs
 * You can see all of the public methods in the Javadocs. If you're using IntelliJ, simply put the cursor over the word SceneOne and press F1 twice, then click on the link that says 'SceneOne' on localhost
 
@@ -329,9 +367,48 @@ If your project uses SceneOneFX, shoot me an email [sims.mike@gmail.com](mailto:
 
 To add your project to the list here, you can also submit a pull request after changing this README.
 
+## Single Stage Update
+SceneOneFX now follows conventional JavaFX theory by using a single Stage object to display all of the
+Scenes that you create. You can override this behavior by calling newStage() in your build sentence.
+
+```Java
+SceneOne.set(sceneId, parent).newStage().build();
+```
+
+
+When you have a Scene that is currently showing, then you create a new Scene, that new Scene will be shown
+on the default Stage. When you then close that Scene, the previously showing Scene will be shown. You can
+chose to instead close the Stage that any Scene is currently showing on like this
+
+```Java
+SceneOne.closeStage(sceneId);
+SceneOne.closeStageIfShowing(sceneId);
+```
+
+However, simply calling ```SceneOne.close(sceneId)``` will close the Stage, if that scene is the first
+Scene that was created for that Stage.
+
+Adding newStage() to all of your build sentences will cause SceneOneFX to behave as it has always behaved
+prior to version 1.3.1
+
+I did this after realizing that when I placed an event handler on a Scenes lostFocusEvent property, that event
+was being called when I simply created a new Scene, since a new Stage was also created with the new Scene.
+So there was really no way to ensure that the lostFocus event would be applied to the entire scope of the 
+application, regardless of which Scene the user might currently have open.
+
 ---
+
 Version Update Notes
 ---
+
+* **1.3.1**
+* Modified SceneOneFX so that all Scenes are shown on the same stage. See section above entitled 'Single Stage Update'
+
+* **1.3.0**
+  * Deprecated Builder option .centered(width, height) - instead of defining the size of the scene within this method for situations when you use showAndWait, SceneOneFX now uses the dimensions that you pass in from either the .set() option or the Builder.size(width, height) method. If you try and invoke showAndWait and also chose to center the scene, but you do not specify the dimensions of the scene, SceneOneFX will throw an error explaining what you must do.
+  * Added the askYesNo() method
+  * Added the choiceResponse() method
+  * Added the showMessage() method
 
 * **1.2.4**
   * Added setTitle method 
