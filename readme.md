@@ -402,7 +402,7 @@ Version Update Notes
 ---
 
 * **1.3.1**
-  * Modified SceneOneFX so that all Scenes are shown on the same stage. See [Single Stage Update](#single-stage-update) for information.
+  * Modified SceneOneFX so that all Scenes are shown on the same stage. See section above entitled 'Single Stage Update'
 
 * **1.3.0**
   * Deprecated Builder option .centered(width, height) - instead of defining the size of the scene within this method for situations when you use showAndWait, SceneOneFX now uses the dimensions that you pass in from either the .set() option or the Builder.size(width, height) method. If you try and invoke showAndWait and also chose to center the scene, but you do not specify the dimensions of the scene, SceneOneFX will throw an error explaining what you must do.
