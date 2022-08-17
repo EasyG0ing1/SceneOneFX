@@ -24,8 +24,11 @@ public class ConfirmationClass {
 	public ConfirmationClass(EventHandler<WindowEvent> onHiddenEventHandler) {
 		makeControls();
 		setControlActions();
+		SceneOne.disableNotice();
 		SceneOne.set(sceneId,vbox)
 				.alwaysOnTop()
+				.newStage()
+				.size(width,height)
 				.centered()
 				.onHiddenEvent(onHiddenEventHandler)
 				.initStyle(StageStyle.UTILITY)
@@ -67,9 +70,7 @@ public class ConfirmationClass {
 	}
 
 	public void showAndWait(String message) {
-		Platform.runLater(() -> {
-			label.setText(message);
-		});
+		Platform.runLater(() -> label.setText(message));
 		SceneOne.showAndWait(sceneId);
 	}
 

@@ -12,8 +12,9 @@ import javafx.stage.Stage;
 
 public class YesNo extends Application {
 
-	@Override public void start(Stage primaryStage) throws Exception {
+	@Override public void start(Stage primaryStage) {
 		buildControls();
+		SceneOne.disableNotice();
 		SceneOne.set(sceneId, vbox, width, height).centered().onCloseEvent(e->SceneOne.remove(sceneId)).show();
 	}
 

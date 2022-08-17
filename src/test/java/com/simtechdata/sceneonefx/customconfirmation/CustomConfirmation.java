@@ -8,17 +8,14 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
-import java.io.File;
 
 public class CustomConfirmation extends Application {
 
-	@Override public void start(Stage primaryStage) throws Exception {
+	@Override public void start(Stage primaryStage) {
 		makeControls();
 		setControlActions();
-		SceneOne.set(sceneId,vbox).centered().show();
+		SceneOne.set(sceneId,vbox).newStage().centered().show();
 	}
 
 
@@ -39,14 +36,10 @@ public class CustomConfirmation extends Application {
 		vbox.setPrefWidth(width);
 		vbox.setPrefHeight(height);
 		vbox.setAlignment(Pos.CENTER);
-		FileChooser fileChooser = new FileChooser();
-		File file = fileChooser.showOpenDialog(SceneOne.getWindow(sceneId));
 	}
 
 	private void setControlActions() {
-		btnGenerateAlert.setOnAction(e-> {
-			confirmation.showAndWait("Do you like peas AND carrots?");
-		});
+		btnGenerateAlert.setOnAction(e-> confirmation.showAndWait("Do you like peas AND carrots?"));
 	}
 
 	private void getAnswer() {

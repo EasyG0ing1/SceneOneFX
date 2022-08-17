@@ -47,7 +47,7 @@ public class Stages {
 		}
 	}
 
-	public static boolean closingSceneHasHistory(String sceneId) {
+	public static boolean sceneHasHistory(String sceneId) {
 		Stage stage = stageMap.get(sceneId);
 		return shownSceneMap.get(stage).size() > 1;
 	}
@@ -67,6 +67,21 @@ public class Stages {
 			}
 		}
 		return null;
+	}
+
+	public static void removeShownScene(String sceneId) {
+		Stage stage = stageMap.get(sceneId);
+		if(shownSceneMap.containsKey(stage)) {
+			LinkedList<String> list = shownSceneMap.get(stage);
+			if(list.contains(sceneId)) {
+				list.remove(sceneId);
+				shownSceneMap.replace(stage, list);
+			}
+		}
+	}
+
+	public static void removeScene(String sceneId) {
+		stageMap.remove(sceneId);
 	}
 
 }

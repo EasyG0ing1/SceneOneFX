@@ -15,9 +15,12 @@ public class AlertClass {
 	public AlertClass() {
 		makeControls();
 		setControlActions();
+		SceneOne.disableNotice();
 		SceneOne.set(sceneId,vbox)
+				.newStage()
 				.centered()
 				.alwaysOnTop()
+				.size(width,height)
 				.onCloseEvent(Event::consume)
 				.initStyle(StageStyle.UTILITY).build();
 	}
@@ -44,9 +47,7 @@ public class AlertClass {
 	}
 
 	public void showAlert(String message) {
-		Platform.runLater(() -> {
-			label.setText(message);
-		});
+		Platform.runLater(() -> label.setText(message));
 		SceneOne.showAndWait(sceneId);
 	}
 

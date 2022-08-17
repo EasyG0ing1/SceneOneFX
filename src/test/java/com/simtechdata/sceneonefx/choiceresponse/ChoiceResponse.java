@@ -12,8 +12,9 @@ import javafx.stage.Stage;
 
 public class ChoiceResponse extends Application {
 
-	@Override public void start(Stage primaryStage) throws Exception {
+	@Override public void start(Stage primaryStage) {
 		buildControls();
+		SceneOne.disableNotice();
 		SceneOne.set(sceneId, vbox, width, height).centered().onCloseEvent(e->SceneOne.remove(sceneId)).show();
 	}
 
@@ -37,7 +38,7 @@ public class ChoiceResponse extends Application {
 	}
 
 	private void askQuestion() {
-		String answerDisplay = "";
+		String answerDisplay;
 		int answer = SceneOne.choiceResponse(sceneId,
 											 "Which ice cream flavor do you want?",
 											 300,

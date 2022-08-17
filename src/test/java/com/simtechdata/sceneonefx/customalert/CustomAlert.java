@@ -13,14 +13,15 @@ import javafx.stage.Stage;
 public class CustomAlert extends Application {
 
 
-	@Override public void start(Stage primaryStage) throws Exception {
+	@Override public void start(Stage primaryStage) {
 		makeControls();
 		setControlActions();
-		SceneOne.set(sceneId,vbox).centered().show();
+		SceneOne.disableNotice();
+		SceneOne.set(sceneId,vbox).newStage().centered().size(width,height).show();
 	}
 
 	private final String     sceneId = "CustomAlert";
-	private       AlertClass alert   = new AlertClass();
+	private final AlertClass alert   = new AlertClass();
 	private final double     width   = 300;
 	private final double height = 175;
 	private Button btnGenerateAlert;
