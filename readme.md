@@ -388,7 +388,7 @@ SceneOne.closeStageIfShowing(sceneId);
 However, simply calling ```SceneOne.close(sceneId)``` will close the Stage, if that scene is the first
 Scene that was created for that Stage.
 
-Adding newStage() to all of your build sentences will cause SceneOneFX to behave as it has always behaved
+Adding ```newStage()``` to all of your build sentences will cause SceneOneFX to behave as it has always behaved
 prior to version 1.3.1
 
 ---
