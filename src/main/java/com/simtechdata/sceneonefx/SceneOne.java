@@ -440,16 +440,16 @@ public class SceneOne {
 			throw userError("No last Scene to show, verify first by using lastSceneAvailable()");
 	}
 
-	public static Integer askYesNo(String sceneId, String question, double width, double height) {
-		return askYesNo(sceneId, question, width, height, Pos.CENTER, true);
+	public static Integer askYesNo(String parentSceneId, String question, double width, double height) {
+		return askYesNo(parentSceneId, question, width, height, Pos.CENTER, true);
 	}
 
-	public static Integer askYesNo(String sceneId, String question, double width, double height, Pos textAlignment) {
-		return askYesNo(sceneId, question, width, height, textAlignment, true);
+	public static Integer askYesNo(String parentSceneId, String question, double width, double height, Pos textAlignment) {
+		return askYesNo(parentSceneId, question, width, height, textAlignment, true);
 	}
 
-	public static Integer askYesNo(String sceneId, String question, double width, double height, Pos textAlignment, boolean wrapText) {
-		checkScene(sceneId);
+	public static Integer askYesNo(String parentSceneId, String question, double width, double height, Pos textAlignment, boolean wrapText) {
+		checkScene(parentSceneId);
 		String sid   = "SceneOneYesNo";
 		Label  label = new Label(question);
 		label.setWrapText(wrapText);
@@ -474,17 +474,17 @@ public class SceneOne {
 		vbox.setAlignment(Pos.CENTER);
 		vbox.setMinWidth(width);
 		vbox.setMinHeight(height);
-		SceneOne.set(sid, vbox, width, height).newStage().centered().owner(sceneId).alwaysOnTop().showAndWait();
+		SceneOne.set(sid, vbox, width, height).newStage().centered().owner(parentSceneId).alwaysOnTop().showAndWait();
 		SceneOne.remove(sid);
 		return answer.getValue();
 	}
 
-	public static void showMessage(String sceneId, double width, double height, String message) {
-		showMessage(sceneId, width, height, message, true, Pos.CENTER);
+	public static void showMessage(String parentSceneId, double width, double height, String message) {
+		showMessage(parentSceneId, width, height, message, true, Pos.CENTER);
 	}
 
-	public static void showMessage(String sceneId, double width, double height, String message, boolean wrapText, Pos textAlignment) {
-		checkScene(sceneId);
+	public static void showMessage(String parentSceneId, double width, double height, String message, boolean wrapText, Pos textAlignment) {
+		checkScene(parentSceneId);
 		String sid   = "SceneOneMessage";
 		Label  label = new Label(message);
 		label.setWrapText(wrapText);
@@ -498,16 +498,16 @@ public class SceneOne {
 		vbox.setAlignment(Pos.CENTER);
 		vbox.setMinWidth(width);
 		vbox.setMinHeight(height);
-		SceneOne.set(sid, vbox, width, height).newStage().centered().owner(SceneOne.getStage(sceneId)).alwaysOnTop().showAndWait();
+		SceneOne.set(sid, vbox, width, height).newStage().centered().owner(SceneOne.getStage(parentSceneId)).alwaysOnTop().showAndWait();
 		SceneOne.remove(sid);
 	}
 
-	public static Integer choiceResponse(String sceneId, String question, double width, double height, String... buttonText) {
-		return choiceResponse(sceneId, question, width, height, Pos.CENTER, true, buttonText);
+	public static Integer choiceResponse(String parentSceneId, String question, double width, double height, String... buttonText) {
+		return choiceResponse(parentSceneId, question, width, height, Pos.CENTER, true, buttonText);
 	}
 
-	public static Integer choiceResponse(String sceneId, String question, double width, double height, Pos textAlignment, boolean wrapText, String... buttonText) {
-		checkScene(sceneId);
+	public static Integer choiceResponse(String parentSceneId, String question, double width, double height, Pos textAlignment, boolean wrapText, String... buttonText) {
+		checkScene(parentSceneId);
 		String   sid         = "SceneOneChoiceResponse";
 		int      buttonCount = buttonText.length;
 		Button[] buttons     = new Button[buttonCount];
@@ -532,7 +532,7 @@ public class SceneOne {
 		vbox.setAlignment(Pos.CENTER);
 		vbox.setMinWidth(width);
 		vbox.setMinHeight(height);
-		SceneOne.set(sid, vbox, width, height).newStage().centered().owner(SceneOne.getStage(sceneId)).alwaysOnTop().showAndWait();
+		SceneOne.set(sid, vbox, width, height).newStage().centered().owner(SceneOne.getStage(parentSceneId)).alwaysOnTop().showAndWait();
 		SceneOne.remove(sid);
 		return answer.getValue();
 	}
