@@ -33,7 +33,7 @@ public class SceneOne {
 	}
 
 	private static final Map<String, SceneObject> sceneMap       = new HashMap<>();
-	static final LinkedList<String> lastSceneShown = new LinkedList<>();
+	static final         LinkedList<String>       lastSceneShown = new LinkedList<>();
 	private static       String                   masterTitle    = "";
 	private static       boolean                  disableNotice  = false;
 
@@ -78,7 +78,7 @@ public class SceneOne {
 		boolean                         centered                  = false;
 		boolean                         alwaysOnTop               = false;
 		boolean                         hideOnLostFocus           = false;
-		boolean fullScreen = false;
+		boolean                         fullScreen                = false;
 		String                          title                     = masterTitle;
 		double                          posX                      = -1;
 		double                          posY                      = -1;
@@ -302,7 +302,9 @@ public class SceneOne {
 
 		public void show() {
 			build();
-			Platform.runLater(() -> sceneMap.get(sceneId).show());
+			Platform.runLater(() -> {
+				sceneMap.get(sceneId).show();
+			});
 		}
 
 		public void showAndWait() {
@@ -310,7 +312,9 @@ public class SceneOne {
 				if (width < 0 || height < 0) throw centerOnWaitError();
 			}
 			build();
-			Platform.runLater(() -> sceneMap.get(sceneId).showAndWait());
+			Platform.runLater(() -> {
+				sceneMap.get(sceneId).showAndWait();
+			});
 		}
 	}
 
@@ -441,8 +445,7 @@ public class SceneOne {
 			checkScene(sceneId);
 			sceneMap.get(sceneId).reShow();
 		}
-		else
-			throw userError("No last Scene to show, verify first by using lastSceneAvailable()");
+		else {throw userError("No last Scene to show, verify first by using lastSceneAvailable()");}
 	}
 
 	public static Integer askYesNo(String parentSceneId, String question, double width, double height) {
@@ -479,7 +482,8 @@ public class SceneOne {
 		vbox.setAlignment(Pos.CENTER);
 		vbox.setMinWidth(width);
 		vbox.setMinHeight(height);
-		SceneOne.set(sid, vbox, width, height).newStage().centered().owner(parentSceneId).alwaysOnTop().showAndWait();
+		SceneOne.set(sid, vbox, width, height).newStage().centered().owner(parentSceneId).alwaysOnTop().build();
+		SceneOne.showAndWait(sid);
 		SceneOne.remove(sid);
 		return answer.getValue();
 	}
@@ -503,7 +507,8 @@ public class SceneOne {
 		vbox.setAlignment(Pos.CENTER);
 		vbox.setMinWidth(width);
 		vbox.setMinHeight(height);
-		SceneOne.set(sid, vbox, width, height).newStage().centered().owner(SceneOne.getStage(parentSceneId)).alwaysOnTop().showAndWait();
+		SceneOne.set(sid, vbox, width, height).newStage().centered().owner(parentSceneId).alwaysOnTop().build();
+		SceneOne.showAndWait(sid);
 		SceneOne.remove(sid);
 	}
 
@@ -537,7 +542,8 @@ public class SceneOne {
 		vbox.setAlignment(Pos.CENTER);
 		vbox.setMinWidth(width);
 		vbox.setMinHeight(height);
-		SceneOne.set(sid, vbox, width, height).newStage().centered().owner(SceneOne.getStage(parentSceneId)).alwaysOnTop().showAndWait();
+		SceneOne.set(sid, vbox, width, height).newStage().centered().owner(SceneOne.getStage(parentSceneId)).alwaysOnTop().build();
+		SceneOne.showAndWait(sid);
 		SceneOne.remove(sid);
 		return answer.getValue();
 	}
@@ -675,7 +681,7 @@ public class SceneOne {
 
 	public static boolean lastSceneAvailable() {
 		LinkedList<String> newList = new LinkedList<>(lastSceneShown);
-		if(newList.size() > 1) {
+		if (newList.size() > 1) {
 			newList.removeLast();
 			return sceneMap.containsKey(newList.getLast());
 		}

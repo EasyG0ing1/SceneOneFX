@@ -54,21 +54,21 @@ The project is available as a Maven dependency on Central. Add the following to 
 <dependency>
     <groupId>com.simtechdata</groupId>
     <artifactId>SceneOneFX</artifactId>
-    <version>1.3.4</version>
+    <version>1.3.5</version>
 </dependency>
 ```
 
 Or, if using Gradle to build, add this to your Gradle build file
 
 ```groovy
-compile group: 'com.simtechdata', name: 'SceneOneFX', version: 1.3.4
+compile group: 'com.simtechdata', name: 'SceneOneFX', version: 1.3.5
 ```
 
 You can even use it from a Groovy script!
 
 ```groovy
 @Grapes(
-  @Grab(group='com.simtechdata', module='SceneOneFX', version=1.3.4)
+  @Grab(group='com.simtechdata', module='SceneOneFX', version=1.3.5)
 )
 ```
 ## Additional Features
@@ -396,7 +396,7 @@ prior to version 1.3.1
 Version Update Notes
 ---
 
-* **1.3.4**
+* **1.3.5**
   * Made all calls that show a stage happen on the Application Thread
 
 * **1.3.2**
