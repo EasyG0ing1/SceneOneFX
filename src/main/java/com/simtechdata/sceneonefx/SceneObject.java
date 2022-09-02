@@ -68,6 +68,8 @@ public class SceneObject {
 		else if (build.lostFocusListener != null) {
 			stage.focusedProperty().addListener(build.lostFocusListener);
 		}
+
+		stage.setFullScreen(build.fullScreen);
 	}
 
 	protected static class Size {

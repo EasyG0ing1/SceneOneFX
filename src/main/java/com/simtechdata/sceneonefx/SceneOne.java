@@ -1,5 +1,6 @@
 package com.simtechdata.sceneonefx;
 
+import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
@@ -77,6 +78,7 @@ public class SceneOne {
 		boolean                         centered                  = false;
 		boolean                         alwaysOnTop               = false;
 		boolean                         hideOnLostFocus           = false;
+		boolean fullScreen = false;
 		String                          title                     = masterTitle;
 		double                          posX                      = -1;
 		double                          posY                      = -1;
@@ -138,6 +140,11 @@ public class SceneOne {
 			this.width    = width;
 			this.height   = height;
 			this.centered = true;
+			return this;
+		}
+
+		public Builder fullScreen() {
+			this.fullScreen = true;
 			return this;
 		}
 
@@ -295,17 +302,15 @@ public class SceneOne {
 
 		public void show() {
 			build();
-			sceneMap.get(sceneId).show();
+			Platform.runLater(() -> sceneMap.get(sceneId).show());
 		}
 
 		public void showAndWait() {
 			if (centered) {
-				if (width < 0 || height < 0) {
-					throw centerOnWaitError();
-				}
+				if (width < 0 || height < 0) throw centerOnWaitError();
 			}
 			build();
-			sceneMap.get(sceneId).showAndWait();
+			Platform.runLater(() -> sceneMap.get(sceneId).showAndWait());
 		}
 	}
 
@@ -344,7 +349,7 @@ public class SceneOne {
 
 	public static void show(String sceneId) {
 		checkScene(sceneId);
-		sceneMap.get(sceneId).show();
+		Platform.runLater(() -> sceneMap.get(sceneId).show());
 	}
 
 	public static void showAndWait(String sceneId) {
