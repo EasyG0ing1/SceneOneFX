@@ -36,6 +36,7 @@ public class SceneOne {
 	static final         LinkedList<String>       lastSceneShown = new LinkedList<>();
 	private static       String                   masterTitle    = "";
 	private static       boolean                  disableNotice  = false;
+	private static boolean newStageEveryScene = false;
 
 	/**
 	 * Builder Class
@@ -278,11 +279,11 @@ public class SceneOne {
 		public void build() {
 			boolean sceneHasStage = Stages.hasStage(sceneId);
 			sceneMap.remove(sceneId);
-			if (!sceneHasStage && addStage) {
+			if (!sceneHasStage && (addStage || newStageEveryScene)) {
 				stage = new Stage();
 				Stages.addStage(sceneId, stage);
 			}
-			else if (sceneHasStage && addStage) {
+			else if (sceneHasStage && (addStage || newStageEveryScene)) {
 				Stages.removeScene(sceneId);
 				stage = Stages.getDefaultStage();
 				Stages.addStage(sceneId, stage);
@@ -302,9 +303,7 @@ public class SceneOne {
 
 		public void show() {
 			build();
-			Platform.runLater(() -> {
-				sceneMap.get(sceneId).show();
-			});
+			Platform.runLater(() -> sceneMap.get(sceneId).show());
 		}
 
 		public void showAndWait() {
@@ -312,9 +311,7 @@ public class SceneOne {
 				if (width < 0 || height < 0) throw centerOnWaitError();
 			}
 			build();
-			Platform.runLater(() -> {
-				sceneMap.get(sceneId).showAndWait();
-			});
+			Platform.runLater(() -> sceneMap.get(sceneId).showAndWait());
 		}
 	}
 
@@ -404,8 +401,11 @@ public class SceneOne {
 	}
 
 	public static void remove(String sceneId) {
-		sceneMap.remove(sceneId);
-		Stages.removeScene(sceneId);
+		if(sceneMap.containsKey(sceneId)) {
+			sceneMap.get(sceneId).close();
+			sceneMap.remove(sceneId);
+			Stages.removeScene(sceneId);
+		}
 	}
 
 	public static void center(String sceneId) {
@@ -551,6 +551,10 @@ public class SceneOne {
 	/**
 	 * Setters
 	 */
+
+	public static void newStageEveryScene() {
+		newStageEveryScene = true;
+	}
 
 	public static void setTitle(String title) {
 		masterTitle = title;

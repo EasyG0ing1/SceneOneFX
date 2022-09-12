@@ -54,24 +54,36 @@ The project is available as a Maven dependency on Central. Add the following to 
 <dependency>
     <groupId>com.simtechdata</groupId>
     <artifactId>SceneOneFX</artifactId>
-    <version>1.3.5</version>
+    <version>1.3.6</version>
 </dependency>
 ```
 
 Or, if using Gradle to build, add this to your Gradle build file
 
 ```groovy
-compile group: 'com.simtechdata', name: 'SceneOneFX', version: 1.3.5
+compile group: 'com.simtechdata', name: 'SceneOneFX', version: 1.3.6
 ```
 
 You can even use it from a Groovy script!
 
 ```groovy
 @Grapes(
-  @Grab(group='com.simtechdata', module='SceneOneFX', version=1.3.5)
+  @Grab(group='com.simtechdata', module='SceneOneFX', version=1.3.6)
 )
 ```
 ## Additional Features
+### New Stage with every Scene
+I Brought back the behavior that recently went away, which is that when you create a new Scene, 
+SceneOneFX use to create a new Stage for that Scene, but that was changed so that new Scenes
+simply used the first Stage that was created. Which can be overridden by adding .newScene() in your
+build sentence. However, I found in my programs, I need SceneOneFX to create a new Stage for every
+scene and I don't want to have to use the .newStage() option every time, so I added a global
+boolean that can be set by calling 
+```Java
+SceneOne.newStageEveryScene();
+```
+Just once and from then on out, a new Stage will be created with every Scene.
+
 ### Set Master Title
 
 You can set the title once, and all of your Scenes will use that title
@@ -395,6 +407,9 @@ prior to version 1.3.1
 
 Version Update Notes
 ---
+
+* **1.3.6**
+  * Brought back the ability to create a new Stage with every new Scene. To enable, simply call ```SceneOne.newStageEveryScene();``` once and it will be in that mode for as long as the program runs.
 
 * **1.3.5**
   * Made all calls that show a stage happen on the Application Thread
