@@ -32,11 +32,11 @@ public class SceneOne {
 		ALL
 	}
 
-	private static final Map<String, SceneObject> sceneMap       = new HashMap<>();
-	static final         LinkedList<String>       lastSceneShown = new LinkedList<>();
-	private static       String                   masterTitle    = "";
-	private static       boolean                  disableNotice  = false;
-	private static boolean newStageEveryScene = false;
+	private static final Map<String, SceneObject> sceneMap           = new HashMap<>();
+	static final         LinkedList<String>       lastSceneShown     = new LinkedList<>();
+	private static       String                   masterTitle        = "";
+	private static       boolean disableNotice          = false;
+	private static       boolean makeNewStageEveryScene = false;
 
 	/**
 	 * Builder Class
@@ -45,11 +45,13 @@ public class SceneOne {
 	public static class Builder {
 
 		public Builder(String sceneId, Parent parent) {
+			if(sceneExists(sceneId)) remove(sceneId);
 			this.sceneId = sceneId;
 			this.parent  = parent;
 		}
 
 		public Builder(String sceneId, Parent parent, double width, double height) {
+			if(sceneExists(sceneId)) remove(sceneId);
 			this.sceneId = sceneId;
 			this.parent  = parent;
 			this.width   = width;
@@ -57,11 +59,13 @@ public class SceneOne {
 		}
 
 		public Builder(String sceneId, Scene scene) {
+			if(sceneExists(sceneId)) remove(sceneId);
 			this.sceneId = sceneId;
 			this.scene   = scene;
 		}
 
 		public Builder(String sceneId, Scene scene, double width, double height) {
+			if(sceneExists(sceneId)) remove(sceneId);
 			this.sceneId = sceneId;
 			this.scene   = scene;
 			this.width   = width;
@@ -279,11 +283,11 @@ public class SceneOne {
 		public void build() {
 			boolean sceneHasStage = Stages.hasStage(sceneId);
 			sceneMap.remove(sceneId);
-			if (!sceneHasStage && (addStage || newStageEveryScene)) {
+			if (!sceneHasStage && (addStage || SceneOne.makeNewStageEveryScene)) {
 				stage = new Stage();
 				Stages.addStage(sceneId, stage);
 			}
-			else if (sceneHasStage && (addStage || newStageEveryScene)) {
+			else if (sceneHasStage && (addStage || SceneOne.makeNewStageEveryScene)) {
 				Stages.removeScene(sceneId);
 				stage = Stages.getDefaultStage();
 				Stages.addStage(sceneId, stage);
@@ -401,7 +405,7 @@ public class SceneOne {
 	}
 
 	public static void remove(String sceneId) {
-		if(sceneMap.containsKey(sceneId)) {
+		if (sceneMap.containsKey(sceneId)) {
 			sceneMap.get(sceneId).close();
 			sceneMap.remove(sceneId);
 			Stages.removeScene(sceneId);
@@ -553,7 +557,7 @@ public class SceneOne {
 	 */
 
 	public static void newStageEveryScene() {
-		newStageEveryScene = true;
+		makeNewStageEveryScene = true;
 	}
 
 	public static void setTitle(String title) {

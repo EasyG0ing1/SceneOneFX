@@ -54,21 +54,21 @@ The project is available as a Maven dependency on Central. Add the following to 
 <dependency>
     <groupId>com.simtechdata</groupId>
     <artifactId>SceneOneFX</artifactId>
-    <version>1.3.6</version>
+    <version>1.3.7</version>
 </dependency>
 ```
 
 Or, if using Gradle to build, add this to your Gradle build file
 
 ```groovy
-compile group: 'com.simtechdata', name: 'SceneOneFX', version: 1.3.6
+compile group: 'com.simtechdata', name: 'SceneOneFX', version: 1.3.7
 ```
 
 You can even use it from a Groovy script!
 
 ```groovy
 @Grapes(
-  @Grab(group='com.simtechdata', module='SceneOneFX', version=1.3.6)
+  @Grab(group='com.simtechdata', module='SceneOneFX', version=1.3.7)
 )
 ```
 ## Additional Features
@@ -407,6 +407,9 @@ prior to version 1.3.1
 
 Version Update Notes
 ---
+
+* **1.3.7**
+  * Bug Fixes
 
 * **1.3.6**
   * Brought back the ability to create a new Stage with every new Scene. To enable, simply call ```SceneOne.newStageEveryScene();``` once and it will be in that mode for as long as the program runs.
