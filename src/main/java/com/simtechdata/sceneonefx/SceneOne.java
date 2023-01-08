@@ -1,5 +1,9 @@
 package com.simtechdata.sceneonefx;
 
+import com.simtechdata.sceneonefx.id.Get;
+import com.simtechdata.sceneonefx.id.RandomString;
+import com.simtechdata.sceneonefx.id.SceneID;
+import com.simtechdata.sceneonefx.id.StageID;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -20,9 +24,7 @@ import javafx.stage.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SceneOne {
 
@@ -32,11 +34,11 @@ public class SceneOne {
 		ALL
 	}
 
-	private static final Map<String, SceneObject> sceneMap           = new HashMap<>();
-	static final         LinkedList<String>       lastSceneShown     = new LinkedList<>();
-	private static       String                   masterTitle        = "";
-	private static       boolean disableNotice          = false;
-	private static       boolean makeNewStageEveryScene = false;
+	private static final ConcurrentHashMap<SceneID, SceneObject> sceneMap               = new ConcurrentHashMap<>();
+	private static final ConcurrentHashMap<Parent, Scene>        parentSceneMap         = new ConcurrentHashMap<>();
+	private static       String                                  masterTitle            = "";
+	private static       boolean                                 makeNewStageEveryScene = false;
+	private static boolean debug = false;
 
 	/**
 	 * Builder Class
@@ -44,35 +46,67 @@ public class SceneOne {
 
 	public static class Builder {
 
-		public Builder(String sceneId, Parent parent) {
-			if(sceneExists(sceneId)) remove(sceneId);
-			this.sceneId = sceneId;
+		public Builder(String sceneID, Parent parent) {
+			if (sceneExists(sceneID)) remove(sceneID);
+			this.sceneID = Get.newSceneID(sceneID);
 			this.parent  = parent;
 		}
 
-		public Builder(String sceneId, Parent parent, double width, double height) {
-			if(sceneExists(sceneId)) remove(sceneId);
-			this.sceneId = sceneId;
+		public Builder(String sceneID, Parent parent, double width, double height) {
+			if (sceneExists(sceneID)) remove(sceneID);
+			this.sceneID = Get.newSceneID(sceneID);
 			this.parent  = parent;
 			this.width   = width;
 			this.height  = height;
 		}
 
-		public Builder(String sceneId, Scene scene) {
-			if(sceneExists(sceneId)) remove(sceneId);
-			this.sceneId = sceneId;
+		public Builder(String sceneID, Scene scene) {
+			if (sceneExists(sceneID)) remove(sceneID);
+			this.sceneID = Get.newSceneID(sceneID);
 			this.scene   = scene;
 		}
 
-		public Builder(String sceneId, Scene scene, double width, double height) {
-			if(sceneExists(sceneId)) remove(sceneId);
-			this.sceneId = sceneId;
+		public Builder(String sceneID, Scene scene, double width, double height) {
+			if (sceneExists(sceneID)) remove(sceneID);
+			this.sceneID = Get.newSceneID(sceneID);
 			this.scene   = scene;
 			this.width   = width;
 			this.height  = height;
 		}
 
-		final String sceneId;
+		public Builder(boolean onDefault, String sceneID, Parent parent) {
+			if (sceneExists(sceneID)) remove(sceneID);
+			this.sceneID             = Get.newSceneID(sceneID);
+			this.parent              = parent;
+			this.useUserDefaultStage = true;
+		}
+
+		public Builder(boolean onDefault, String sceneID, Parent parent, double width, double height) {
+			if (sceneExists(sceneID)) remove(sceneID);
+			this.sceneID             = Get.newSceneID(sceneID);
+			this.parent              = parent;
+			this.width               = width;
+			this.height              = height;
+			this.useUserDefaultStage = true;
+		}
+
+		public Builder(boolean onDefault, String sceneID, Scene scene) {
+			if (sceneExists(sceneID)) remove(sceneID);
+			this.sceneID             = Get.newSceneID(sceneID);
+			this.scene               = scene;
+			this.useUserDefaultStage = true;
+		}
+
+		public Builder(boolean onDefault, String sceneID, Scene scene, double width, double height) {
+			if (sceneExists(sceneID)) remove(sceneID);
+			this.sceneID             = Get.newSceneID(sceneID);
+			this.scene               = scene;
+			this.width               = width;
+			this.height              = height;
+			this.useUserDefaultStage = true;
+		}
+
+		final SceneID sceneID;
 		Scene  scene;
 		Parent parent;
 		final ObservableList<String> styleSheets = FXCollections.observableArrayList();
@@ -100,7 +134,9 @@ public class SceneOne {
 		EventHandler<? super KeyEvent>  keyReleasedEventHandler   = null;
 		Stage                           owner                     = null;
 		Stage                           stage                     = null;
-		private boolean addStage = false;
+		boolean                         addStage                  = false;
+		boolean                         reSizable                 = true;
+		boolean                         useUserDefaultStage       = false;
 
 		public Builder newStage() {
 			addStage = true;
@@ -116,8 +152,8 @@ public class SceneOne {
 
 		public Builder owner(String sceneId) {
 			if (sceneId != null) {
-				if (sceneMap.containsKey(sceneId)) {
-					this.owner = sceneMap.get(sceneId).getStage();
+				if (sceneMap.containsKey(sceneID(sceneId))) {
+					this.owner = sceneMap.get(sceneID(sceneId)).getStage();
 				}
 			}
 			return this;
@@ -280,34 +316,58 @@ public class SceneOne {
 			return this;
 		}
 
+		public Builder reSizable(boolean reSizable) {
+			this.reSizable = reSizable;
+			return this;
+		}
+
 		public void build() {
-			boolean sceneHasStage = Stages.hasStage(sceneId);
-			sceneMap.remove(sceneId);
-			if (!sceneHasStage && (addStage || SceneOne.makeNewStageEveryScene)) {
-				stage = new Stage();
-				Stages.addStage(sceneId, stage);
+			boolean sceneHasStage = Stages.hasStage(sceneID);
+			addStage = addStage || SceneOne.makeNewStageEveryScene;
+			if (!addStage && sceneHasStage) {
+				StageID stageID = Stages.getStageId(sceneID);
+				if (style != null) {Stages.initStyle(stageID, style);}
+				if (modality != null) {Stages.initModality(stageID, modality);}
+				if (owner != null) {Stages.initOwner(stageID, owner.getScene().getWindow());}
+				stage = Stages.getStage(sceneID);
 			}
-			else if (sceneHasStage && (addStage || SceneOne.makeNewStageEveryScene)) {
-				Stages.removeScene(sceneId);
+			else if (!addStage && !useUserDefaultStage) {
+				if (style != null) {Stages.initDefaultStyle(style);}
+				if (modality != null) {Stages.initDefaultModality(modality);}
+				if (owner != null) {Stages.initDefaultOwner(owner.getScene().getWindow());}
 				stage = Stages.getDefaultStage();
-				Stages.addStage(sceneId, stage);
 			}
-			else if (sceneHasStage) {
-				stage = Stages.getStage(sceneId);
+			else if (useUserDefaultStage) {
+				if (style != null) {Stages.initUserDefaultStyle(style);}
+				if (modality != null) {Stages.initUserDefaultModality(modality);}
+				if (owner != null) {Stages.initUserDefaultOwner(owner.getScene().getWindow());}
+				stage = Stages.getUserDefaultStage();
+			}
+			else if (addStage || stage == null) {
+				Stages.newStage(sceneID);
+				StageID stageID = Stages.getStageId(sceneID);
+				if (style != null) {Stages.initStyle(stageID, style);}
+				if (modality != null) {Stages.initModality(stageID, modality);}
+				if (owner != null) {Stages.initOwner(stageID, owner.getScene().getWindow());}
+				stage = Stages.getStage(sceneID);
+			}
+			if (parentSceneMap.containsKey(this.parent)) {
+				this.scene = parentSceneMap.get(this.parent);
+			}
+			else if (this.scene == null) {
+				this.scene = new Scene(this.parent);
+				parentSceneMap.put(this.parent, this.scene);
 			}
 			else {
-				stage = Stages.getDefaultStage();
-				Stages.addStage(sceneId, stage);
+				parentSceneMap.put(this.parent, this.scene);
 			}
-			sceneMap.put(sceneId, new SceneObject(this));
-			if (!disableNotice) {
-				System.out.println("SceneOneFX now switches out your Scenes onto a single stage. See README at https://github.com/EasyG0ing1/SceneOneFX\nDisable this notice by calling SceneOne.disableNotice() once.");
-			}
+			sceneMap.remove(sceneID);
+			sceneMap.put(sceneID, new SceneObject(this));
 		}
 
 		public void show() {
 			build();
-			Platform.runLater(() -> sceneMap.get(sceneId).show());
+			sceneMap.get(sceneID).show();
 		}
 
 		public void showAndWait() {
@@ -315,13 +375,17 @@ public class SceneOne {
 				if (width < 0 || height < 0) throw centerOnWaitError();
 			}
 			build();
-			Platform.runLater(() -> sceneMap.get(sceneId).showAndWait());
+			sceneMap.get(sceneID).showAndWait();
 		}
 	}
 
 	/**
 	 * Public Methods
 	 */
+
+	public static void debug() {
+		debug = true;
+	}
 
 	public static Builder set(String sceneId, Parent parent) {
 		return new Builder(sceneId, parent);
@@ -339,117 +403,171 @@ public class SceneOne {
 		return new Builder(sceneId, scene, width, height);
 	}
 
+	public static Builder setOnDefault(String sceneId, Parent parent) {
+		return new Builder(true, sceneId, parent);
+	}
+
+	public static Builder setOnDefault(String sceneId, Parent parent, double width, double height) {
+		return new Builder(true, sceneId, parent, width, height);
+	}
+
+	public static Builder setOnDefault(String sceneId, Scene scene) {
+		return new Builder(true, sceneId, scene);
+	}
+
+	public static Builder setOnDefault(String sceneId, Scene scene, double width, double height) {
+		return new Builder(true, sceneId, scene, width, height);
+	}
+
 	public static void toggleFullScreen(String sceneId) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).toggleFullScreen();
+		checkScene(sceneID(sceneId));
+		Platform.runLater(() -> sceneMap.get(sceneID(sceneId)).toggleFullScreen());
+	}
+
+	public static String getRandom(int size) {
+		return RandomString.get(size);
+	}
+
+	public static String randomSceneId(){
+		return RandomString.get(25);
+	}
+
+	/**
+	 * @deprecated
+	 */
+	public static void disableNotice() {
+		System.out.println("SceneOne.disableNotice() is no longer necessary and has been deprecated. It will be removed in the next release.");
+	}
+
+	/**
+	 * @deprecated
+	 */
+	public static void showLastScene() {
+		System.out.println("SceneOne.showLastScene() Was causing issues and had to be removed. I apologize for the abrupt cancellation of this method, but it was necessary for progress.");
+	}
+
+	/**
+	 * @deprecated
+	 */
+	public static void lastSceneAvailable() {
+		System.out.println("SceneOne.lastSceneAvailable() Was causing issues and had to be removed. I apologize for the abrupt cancellation of this method, but it was necessary for progress.");
 	}
 
 	/**
 	 * Actions
 	 */
 
-	public static void disableNotice() {
-		disableNotice = true;
+	private static SceneID sceneID(String sceneId) {
+		return Get.sceneID(sceneId);
+	}
+
+	public static void setDefaultStage(Stage stage) {
+		Stages.setUserDefaultStage(stage);
+	}
+
+	public static void setDefaultStage(Stage stage, boolean newStage) {
+		Stages.setUserDefaultStage(stage, newStage);
 	}
 
 	public static void show(String sceneId) {
-		checkScene(sceneId);
-		Platform.runLater(() -> sceneMap.get(sceneId).show());
+		checkScene(sceneID(sceneId));
+		Platform.runLater(() -> sceneMap.get(sceneID(sceneId)).show());
 	}
 
 	public static void showAndWait(String sceneId) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).showAndWait();
+		checkScene(sceneID(sceneId));
+		sceneMap.get(sceneID(sceneId)).showAndWait();
 	}
 
 	public static void hide(String sceneId) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).hide();
+		checkScene(sceneID(sceneId));
+		Platform.runLater(() -> sceneMap.get(sceneID(sceneId)).hide());
 	}
 
 	public static void unHide(String sceneId) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).unHide();
+		checkScene(sceneID(sceneId));
+		Platform.runLater(() -> sceneMap.get(sceneID(sceneId)).unHide());
 	}
 
 	public static void reSize(String sceneId, double width, double height) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).resize(width, height);
+		checkScene(sceneID(sceneId));
+		Platform.runLater(() -> sceneMap.get(sceneID(sceneId)).resize(width, height));
 	}
 
 	public static void closeStage(String sceneId) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).close();
+		checkScene(sceneID(sceneId));
+		try {
+			if (sceneMap.get(sceneID(sceneId)) != null) {
+				Platform.runLater(() -> sceneMap.get(sceneID(sceneId)).close());
+			}
+		} catch(NullPointerException ignore){}
 	}
 
 	public static void close(String sceneId) {
-		checkScene(sceneId);
-		if (Stages.sceneHasHistory(sceneId)) {sceneMap.get(Stages.getLastShownScene(sceneId)).reShow();}
-		else {sceneMap.get(sceneId).close();}
+		checkScene(sceneID(sceneId));
+		try {
+			if (sceneMap.get(sceneID(sceneId)) != null) {
+				debug("SceneOneFX close()");
+				Platform.runLater(() -> sceneMap.get(sceneID(sceneId)).close());
+			}
+		} catch(NullPointerException ignore){}
 	}
 
 	public static void closeIfShowing(String sceneId) {
-		checkScene(sceneId);
+		checkScene(sceneID(sceneId));
 		if (isShowing(sceneId)) {close(sceneId);}
 	}
 
 	public static void closeStageIfShowing(String sceneId) {
-		checkScene(sceneId);
-		if (isShowing(sceneId)) {sceneMap.get(sceneId).close();}
+		checkScene(sceneID(sceneId));
+		if (isShowing(sceneId)) closeStage(sceneId);
 	}
 
 	public static void hideIfShowing(String sceneId) {
-		if (sceneMap.containsKey(sceneId)) {
-			sceneMap.get(sceneId).hideIfShowing();
+		if (sceneMap.containsKey(sceneID(sceneId))) {
+			Platform.runLater(() -> sceneMap.get(sceneID(sceneId)).hideIfShowing());
 		}
 	}
 
 	public static void remove(String sceneId) {
-		if (sceneMap.containsKey(sceneId)) {
-			sceneMap.get(sceneId).close();
-			sceneMap.remove(sceneId);
-			Stages.removeScene(sceneId);
+		if (sceneMap.containsKey(sceneID(sceneId))) {
+			try {
+				Platform.runLater(() -> {
+					sceneMap.remove(sceneID(sceneId));
+					Stages.removeScene(sceneID(sceneId));
+				});
+			} catch(NullPointerException ignore){}
 		}
 	}
 
 	public static void center(String sceneId) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).center();
+		checkScene(sceneID(sceneId));
+		Platform.runLater(() -> sceneMap.get(sceneID(sceneId)).center());
 	}
 
 	public static void reCenterScene(String sceneId) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).reCenterScene();
+		checkScene(sceneID(sceneId));
+		Platform.runLater(() -> sceneMap.get(sceneID(sceneId)).reCenterScene());
 	}
 
 	public static void reShow(String sceneId) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).reShow();
+		checkScene(sceneID(sceneId));
+		Platform.runLater(() -> sceneMap.get(sceneID(sceneId)).reShow());
 	}
 
 	public static void showSplitXY(String sceneId, double mouseX, double mouseY, double factorX, double factorY) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).showSplit(mouseX, mouseY, factorX, factorY);
+		checkScene(sceneID(sceneId));
+		Platform.runLater(() -> sceneMap.get(sceneID(sceneId)).showSplit(mouseX, mouseY, factorX, factorY));
 	}
 
 	public static void showSplitX(String sceneId, double mouseX, double factorX) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).showSplitX(mouseX, factorX);
+		checkScene(sceneID(sceneId));
+		Platform.runLater(() -> sceneMap.get(sceneID(sceneId)).showSplitX(mouseX, factorX));
 	}
 
 	public static void showSplitY(String sceneId, double mouseY, double factorY) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).showSplitY(mouseY, factorY);
-	}
-
-	public static void showLastScene() {
-		if (lastSceneShown.size() > 1) {
-			lastSceneShown.removeLast();
-			String sceneId = lastSceneShown.getLast();
-			checkScene(sceneId);
-			sceneMap.get(sceneId).reShow();
-		}
-		else {throw userError("No last Scene to show, verify first by using lastSceneAvailable()");}
+		checkScene(sceneID(sceneId));
+		Platform.runLater(() -> sceneMap.get(sceneID(sceneId)).showSplitY(mouseY, factorY));
 	}
 
 	public static Integer askYesNo(String parentSceneId, String question, double width, double height) {
@@ -461,7 +579,7 @@ public class SceneOne {
 	}
 
 	public static Integer askYesNo(String parentSceneId, String question, double width, double height, Pos textAlignment, boolean wrapText) {
-		checkScene(parentSceneId);
+		checkScene(Get.sceneID(parentSceneId));
 		String sid   = "SceneOneYesNo";
 		Label  label = new Label(question);
 		label.setWrapText(wrapText);
@@ -496,9 +614,16 @@ public class SceneOne {
 		showMessage(parentSceneId, width, height, message, true, Pos.CENTER);
 	}
 
+	public static void showMessage(double width, double height, String message) {
+		showMessage("", width, height, message, true, Pos.CENTER);
+	}
+
+	public static void showMessage(double width, double height, String message, boolean wrapText, Pos textAlignment) {
+		showMessage("", width, height, message, wrapText, textAlignment);
+	}
+
 	public static void showMessage(String parentSceneId, double width, double height, String message, boolean wrapText, Pos textAlignment) {
-		checkScene(parentSceneId);
-		String sid   = "SceneOneMessage";
+		String sid   = "SceneOneMessage" + getRandom(8);
 		Label  label = new Label(message);
 		label.setWrapText(wrapText);
 		label.setMinWidth(width * .85);
@@ -511,8 +636,11 @@ public class SceneOne {
 		vbox.setAlignment(Pos.CENTER);
 		vbox.setMinWidth(width);
 		vbox.setMinHeight(height);
-		SceneOne.set(sid, vbox, width, height).newStage().centered().owner(parentSceneId).alwaysOnTop().build();
-		SceneOne.showAndWait(sid);
+		if (parentSceneId.isEmpty()) {SceneOne.set(sid, vbox, width, height).newStage().centered().alwaysOnTop().showAndWait();}
+		else {
+			checkScene(Get.sceneID(parentSceneId));
+			SceneOne.set(sid, vbox, width, height).newStage().centered().owner(parentSceneId).alwaysOnTop().showAndWait();
+		}
 		SceneOne.remove(sid);
 	}
 
@@ -521,7 +649,7 @@ public class SceneOne {
 	}
 
 	public static Integer choiceResponse(String parentSceneId, String question, double width, double height, Pos textAlignment, boolean wrapText, String... buttonText) {
-		checkScene(parentSceneId);
+		checkScene(Get.sceneID(parentSceneId));
 		String   sid         = "SceneOneChoiceResponse";
 		int      buttonCount = buttonText.length;
 		Button[] buttons     = new Button[buttonCount];
@@ -565,7 +693,7 @@ public class SceneOne {
 	}
 
 	public static void setStyleSheetsForAll(String... styleSheets) {
-		for (String sceneId : sceneMap.keySet()) {
+		for (SceneID sceneId : sceneMap.keySet()) {
 			SceneObject so = sceneMap.get(sceneId);
 			if (so != null) {
 				so.setStyleSheets(styleSheets);
@@ -574,155 +702,169 @@ public class SceneOne {
 	}
 
 	public static void setHeight(String sceneId, double height) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setHeight(height);
+		checkScene(sceneID(sceneId));
+		Platform.runLater(() -> sceneMap.get(sceneID(sceneId)).setHeight(height));
 	}
 
 	public static void setWidth(String sceneId, double width) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setWidth(width);
+		checkScene(sceneID(sceneId));
+		Platform.runLater(() -> sceneMap.get(sceneID(sceneId)).setWidth(width));
 	}
 
 	public static void setSize(String sceneId, double width, double height) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setSize(width, height);
+		checkScene(sceneID(sceneId));
+		Platform.runLater(() -> sceneMap.get(sceneID(sceneId)).setSize(width, height));
 	}
 
 	public static void setPosition(String sceneId, double posX, double posY) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setPosition(posX, posY);
+		checkScene(sceneID(sceneId));
+		Platform.runLater(() -> sceneMap.get(sceneID(sceneId)).setPosition(posX, posY));
 	}
 
 	public static void setParent(String sceneId, Parent parent) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setParent(parent);
+		checkScene(sceneID(sceneId));
+		Platform.runLater(() -> sceneMap.get(sceneID(sceneId)).setParent(parent));
 	}
 
 	public static void setScene(String sceneId, Scene scene) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setScene(scene);
+		checkScene(sceneID(sceneId));
+		Platform.runLater(() -> sceneMap.get(sceneID(sceneId)).setScene(scene));
 	}
 
 	public static void swapScene(String sceneId, Scene scene) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setScene(scene);
+		checkScene(sceneID(sceneId));
+		Platform.runLater(() -> sceneMap.get(sceneID(sceneId)).setScene(scene));
 	}
 
 	public static void setTitle(String sceneId, String title) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setTitle(title);
+		checkScene(sceneID(sceneId));
+		Platform.runLater(() -> sceneMap.get(sceneID(sceneId)).setTitle(title));
 	}
 
 	public static void setOnKeyPressedEvent(String sceneId, EventHandler<? super KeyEvent> keyPressedEventHandler) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setOnKeyPressedEvent(keyPressedEventHandler);
+		checkScene(sceneID(sceneId));
+		sceneMap.get(sceneID(sceneId)).setOnKeyPressedEvent(keyPressedEventHandler);
 	}
 
 	public static void setOnKeyReleasedEvent(String sceneId, EventHandler<? super KeyEvent> keyReleasedEventHandler) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setOnKeyReleasedEvent(keyReleasedEventHandler);
+		checkScene(sceneID(sceneId));
+		sceneMap.get(sceneID(sceneId)).setOnKeyReleasedEvent(keyReleasedEventHandler);
 	}
 
 	public static void setOnShowingEvent(String sceneId, EventHandler<WindowEvent> onShowingEventHandler) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setOnShowingEvent(onShowingEventHandler);
+		checkScene(sceneID(sceneId));
+		sceneMap.get(sceneID(sceneId)).setOnShowingEvent(onShowingEventHandler);
 	}
 
 	public static void setOnShownEvent(String sceneId, EventHandler<WindowEvent> onShownEventHandler) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setOnShownEvent(onShownEventHandler);
+		checkScene(sceneID(sceneId));
+		sceneMap.get(sceneID(sceneId)).setOnShownEvent(onShownEventHandler);
 	}
 
 	public static void setOnHidingEvent(String sceneId, EventHandler<WindowEvent> onHidingEventHandler) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setOnHidingEvent(onHidingEventHandler);
+		checkScene(sceneID(sceneId));
+		sceneMap.get(sceneID(sceneId)).setOnHidingEvent(onHidingEventHandler);
 	}
 
 	public static void setOnHiddenEvent(String sceneId, EventHandler<WindowEvent> onHiddenEventHandler) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setOnHiddenEvent(onHiddenEventHandler);
+		checkScene(sceneID(sceneId));
+		sceneMap.get(sceneID(sceneId)).setOnHiddenEvent(onHiddenEventHandler);
 	}
 
 	public static void setOnCloseEvent(String sceneId, EventHandler<WindowEvent> onCloseEventHandler) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setOnCloseEvent(onCloseEventHandler);
+		checkScene(sceneID(sceneId));
+		sceneMap.get(sceneID(sceneId)).setOnCloseEvent(onCloseEventHandler);
 	}
 
 	public static void setOnWindowCloseEvent(String sceneId, EventHandler<WindowEvent> onWindowCloseEventHandler) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setOnWindowCloseEvent(onWindowCloseEventHandler);
+		checkScene(sceneID(sceneId));
+		sceneMap.get(sceneID(sceneId)).setOnWindowCloseEvent(onWindowCloseEventHandler);
 	}
 
 	public static void setStyleSheets(String sceneId, String... styleSheets) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setStyleSheets(styleSheets);
+		checkScene(sceneID(sceneId));
+		sceneMap.get(sceneID(sceneId)).setStyleSheets(styleSheets);
 	}
 
 	public static void addStyleSheet(String sceneId, String styleSheet) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).addStyleSheet(styleSheet);
+		checkScene(sceneID(sceneId));
+		sceneMap.get(sceneID(sceneId)).addStyleSheet(styleSheet);
 	}
 
 	public static void clearStyleSheets(String sceneId) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).clearStyleSheets();
+		checkScene(sceneID(sceneId));
+		sceneMap.get(sceneID(sceneId)).clearStyleSheets();
 	}
 
 	public static void setOnLostFocus(String sceneId, ChangeListener<? super Boolean> lostFocusListener) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setOnLostFocus(lostFocusListener);
+		checkScene(sceneID(sceneId));
+		sceneMap.get(sceneID(sceneId)).setOnLostFocus(lostFocusListener);
 	}
 
 	public static void setHideOnLostFocus(String sceneId) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setHideOnLostFocus(true);
+		checkScene(sceneID(sceneId));
+		sceneMap.get(sceneID(sceneId)).setHideOnLostFocus(true);
 	}
 
 	public static void setHideOnLostFocus(String sceneId, boolean hideOnLostFocus) {
-		checkScene(sceneId);
-		sceneMap.get(sceneId).setHideOnLostFocus(hideOnLostFocus);
+		checkScene(sceneID(sceneId));
+		sceneMap.get(sceneID(sceneId)).setHideOnLostFocus(hideOnLostFocus);
 	}
 
 	/**
 	 * Getters
 	 */
 
-	public static boolean lastSceneAvailable() {
-		LinkedList<String> newList = new LinkedList<>(lastSceneShown);
-		if (newList.size() > 1) {
-			newList.removeLast();
-			return sceneMap.containsKey(newList.getLast());
+
+	public static Integer getMouseX() {
+		return MouseInfo.getPointerInfo().getLocation().x;
+	}
+
+	public static Integer getMouseY() {
+		return MouseInfo.getPointerInfo().getLocation().y;
+	}
+
+	public static Integer[] getMousePointerXY() {
+		Point     p  = getMousePointerLocation();
+		Integer[] xy = new Integer[2];
+		xy[0] = p.x;
+		xy[1] = p.y;
+		return xy;
+	}
+
+	public static Point getMousePointerLocation() {
+		return MouseInfo.getPointerInfo().getLocation();
+	}
+
+	public static Stage getStage(String sceneId) {
+		checkScene(sceneID(sceneId));
+		return sceneMap.get(sceneID(sceneId)).getStage();
+	}
+
+	public static boolean isShowing(String sceneId) {
+		if (sceneMap.containsKey(sceneID(sceneId))) {
+			return sceneMap.get(sceneID(sceneId)).getStage().isShowing();
 		}
 		return false;
 	}
 
-	public static Stage getStage(String sceneId) {
-		checkScene(sceneId);
-		return sceneMap.get(sceneId).getStage();
-	}
-
-	public static boolean isShowing(String sceneId) {
-		checkScene(sceneId);
-		return sceneMap.get(sceneId).getStage().isShowing();
-	}
-
 	public static Scene getScene(String sceneId) {
-		checkScene(sceneId);
-		return sceneMap.get(sceneId).getScene();
+		checkScene(sceneID(sceneId));
+		return sceneMap.get(sceneID(sceneId)).getScene();
 	}
 
 	public static Window getWindow(String sceneId) {
-		checkScene(sceneId);
-		return sceneMap.get(sceneId).getWindow();
+		checkScene(sceneID(sceneId));
+		return sceneMap.get(sceneID(sceneId)).getWindow();
 	}
 
 	public static boolean sceneExists(String sceneId) {
-		return sceneMap.containsKey(sceneId);
+		return sceneMap.containsKey(sceneID(sceneId));
 	}
 
 	public static Window getOwner(String sceneId) {
-		checkScene(sceneId);
-		return sceneMap.get(sceneId).getStage().getOwner();
+		checkScene(sceneID(sceneId));
+		return sceneMap.get(sceneID(sceneId)).getStage().getOwner();
 	}
 
 	public static Dimension getScreenDimensions() {
@@ -738,13 +880,23 @@ public class SceneOne {
 	}
 
 	public static @NotNull Double getWidth(String sceneId) {
-		checkScene(sceneId);
-		return sceneMap.get(sceneId).getWidth();
+		checkScene(sceneID(sceneId));
+		return sceneMap.get(sceneID(sceneId)).getWidth();
 	}
 
 	public static @NotNull Double getHeight(String sceneId) {
-		checkScene(sceneId);
-		return sceneMap.get(sceneId).getHeight();
+		checkScene(sceneID(sceneId));
+		return sceneMap.get(sceneID(sceneId)).getHeight();
+	}
+
+	public static @NotNull Double getPosX(String sceneId) {
+		checkScene(sceneID(sceneId));
+		return sceneMap.get(sceneID(sceneId)).getPosX();
+	}
+
+	public static @NotNull Double getPosY(String sceneId) {
+		checkScene(sceneID(sceneId));
+		return sceneMap.get(sceneID(sceneId)).getPosY();
 	}
 
 
@@ -752,14 +904,28 @@ public class SceneOne {
 	 * Private Methods
 	 */
 
-	private static void checkScene(String sceneId) {
-		if (!sceneMap.containsKey(sceneId)) {
-			throw noSceneError(sceneId);
+	private static void debug(String message) {
+		if(debug) {
+			System.out.println(message);
 		}
+	}
+
+	private static void checkScene(SceneID sceneId) {
+		if (!sceneMap.containsKey(sceneId)) {
+			throw noSceneError(sceneId.toString());
+		}
+		else if (sceneMap.get(sceneId) == null) {throw sceneNullError(sceneId.toString());}
 	}
 
 	private static @NotNull UnsupportedOperationException noSceneError(String sceneId) {
 		String message      = "* Scene " + sceneId + " does not exist, you need to run SceneOne.set(sceneId, Parent).build(); to complete a Scene *";
+		String frame        = getFrameFor(message);
+		String finalMessage = "\n\n" + frame + "\n" + message + "\n" + frame + "\n";
+		return new UnsupportedOperationException(finalMessage);
+	}
+
+	private static @NotNull UnsupportedOperationException sceneNullError(String sceneId) {
+		String message      = "* Scene " + sceneId + " is NULL, perhaps you removed it before making this call *";
 		String frame        = getFrameFor(message);
 		String finalMessage = "\n\n" + frame + "\n" + message + "\n" + frame + "\n";
 		return new UnsupportedOperationException(finalMessage);

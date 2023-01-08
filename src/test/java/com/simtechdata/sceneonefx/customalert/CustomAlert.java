@@ -16,7 +16,6 @@ public class CustomAlert extends Application {
 	@Override public void start(Stage primaryStage) {
 		makeControls();
 		setControlActions();
-		SceneOne.disableNotice();
 		SceneOne.set(sceneId,vbox).newStage().centered().size(width,height).show();
 	}
 

@@ -15,7 +15,6 @@ public class AlertClass {
 	public AlertClass() {
 		makeControls();
 		setControlActions();
-		SceneOne.disableNotice();
 		SceneOne.set(sceneId,vbox)
 				.newStage()
 				.centered()

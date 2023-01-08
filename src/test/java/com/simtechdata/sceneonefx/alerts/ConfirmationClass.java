@@ -20,11 +20,9 @@ public class ConfirmationClass {
 	 * cannot just close the alert window without answering the question.
 	 */
 
-
 	public ConfirmationClass(EventHandler<WindowEvent> onHiddenEventHandler) {
 		makeControls();
 		setControlActions();
-		SceneOne.disableNotice();
 		SceneOne.set(sceneId,vbox)
 				.alwaysOnTop()
 				.newStage()

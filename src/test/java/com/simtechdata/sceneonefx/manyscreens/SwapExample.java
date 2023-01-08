@@ -39,7 +39,6 @@ public class SwapExample extends Application {
 	@Override public void start(Stage primaryStage) {
 		buildSceneOne();
 		buildSceneTwo();
-		SceneOne.disableNotice();
 		SceneOne.set(sceneId, sceneOne, 300, 300).show();
 	}
 }

@@ -1,5 +1,6 @@
 package com.simtechdata.sceneonefx;
 
+import com.simtechdata.sceneonefx.id.SceneID;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
@@ -12,16 +13,14 @@ import javafx.stage.WindowEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.simtechdata.sceneonefx.SceneOne.DIMENSION.*;
-import static com.simtechdata.sceneonefx.SceneOne.DIMENSION.HEIGHT;
 
 public class SceneObject {
 
 	public SceneObject(@NotNull SceneOne.Builder build) {
-		this.sceneId      = build.sceneId;
+		this.sceneId      = build.sceneID;
 		this.scene        = build.scene;
 		this.centered     = build.centered;
 		this.posX         = build.posX;
@@ -31,16 +30,12 @@ public class SceneObject {
 		this.stage        = build.stage;
 		this.width        = build.width;
 		this.height       = build.height;
-
-		if (stage == null) {stage = new Stage();}
-		if (scene == null) {scene = new Scene(build.parent);}
+		this.reSizable    = build.reSizable;
 
 		stage.setScene(scene);
 		stage.setTitle(build.title);
 		scene.getStylesheets().addAll(build.styleSheets);
 
-		if (build.style != null) stage.initStyle(build.style);
-		if (build.modality != null) stage.initModality(build.modality);
 		if (build.onShownEventHandler != null) stage.setOnShown(build.onShownEventHandler);
 		if (build.onShowingEventHandler != null) stage.setOnShowing(build.onShowingEventHandler);
 		if (build.onHiddenEventHandler != null) stage.setOnHidden(build.onHiddenEventHandler);
@@ -49,7 +44,6 @@ public class SceneObject {
 		if (build.onWindowCloseEventHandler != null) scene.getWindow().setOnCloseRequest(build.onWindowCloseEventHandler);
 		if (build.keyPressedEventHandler != null) setOnKeyPressed(build.keyPressedEventHandler);
 		if (build.keyReleasedEventHandler != null) setOnKeyReleased(build.keyReleasedEventHandler);
-		if (build.owner != null) stage.initOwner(build.owner);
 		stage.setAlwaysOnTop(build.alwaysOnTop);
 
 		if (build.width > 0 && build.height > 0) {
@@ -103,7 +97,7 @@ public class SceneObject {
 
 		}
 
-		private final Map<SceneOne.DIMENSION, Double> VALUES = new HashMap<>();
+		private final ConcurrentHashMap<SceneOne.DIMENSION, Double> VALUES = new ConcurrentHashMap<>();
 
 		private boolean userSetAll    = false;
 		private boolean userSetWidth  = false;
@@ -256,7 +250,7 @@ public class SceneObject {
 
 	private       Stage                           stage;
 	private       Scene                           scene;
-	private final String                          sceneId;
+	private final SceneID                         sceneId;
 	private final boolean                         centered;
 	private       boolean                         hasShown          = false;
 	private       double                          posX;
@@ -267,6 +261,7 @@ public class SceneObject {
 	private final double                          height;
 	private       Size                            size;
 	private       boolean                         hidden            = false;
+	private final boolean                         reSizable;
 	private final ChangeListener<? super Boolean> lostFocusListener = (observable, oldValue, newValue) -> {
 		if (!newValue) {
 			this.hidden = true;
@@ -367,7 +362,8 @@ public class SceneObject {
 
 	public void show() {
 		stage.setScene(scene);
-		Stages.showingScene(sceneId);
+		stage.setWidth(size.getWidth());
+		stage.setHeight(size.getHeight());
 		if (hasShown) {
 			reShow();
 			return;
@@ -378,12 +374,11 @@ public class SceneObject {
 		if (centered) {stage.centerOnScreen();}
 		checkSplit();
 		hasShown = true;
-		addLastScene();
+		stage.setResizable(reSizable);
 	}
 
 	public void showAndWait() {
 		stage.setScene(scene);
-		Stages.showingScene(sceneId);
 		preProcess();
 		if (centered) {
 			if (width < 0 || height < 0) {
@@ -391,26 +386,18 @@ public class SceneObject {
 			}
 			findCenter();
 		}
-		addLastScene();
 		stage.showAndWait();
 	}
 
 	public void reShow() {
 		if (hasShown) {
 			stage.setScene(scene);
-			Stages.showingScene(sceneId);
 			if (centered) {
 				stage.centerOnScreen();
 			}
 			stage.show();
 			stage.toFront();
-			addLastScene();
 		}
-	}
-
-	private void addLastScene() {
-		SceneOne.lastSceneShown.addLast(this.sceneId);
-		if (SceneOne.lastSceneShown.size() > 2) {SceneOne.lastSceneShown.removeFirst();}
 	}
 
 	public void checkSplit() {
@@ -466,6 +453,7 @@ public class SceneObject {
 	}
 
 	public void setParent(Parent parent) {
+		scene = null;
 		scene = new Scene(parent);
 		stage.setScene(scene);
 	}
@@ -481,19 +469,19 @@ public class SceneObject {
 
 	public void setWidth(double width) {
 		if (size == null) {size = new Size(stage, WIDTH, width);}
-		else size.setWidth(width);
+		else {size.setWidth(width);}
 		size.resize();
 	}
 
 	public void setHeight(double height) {
 		if (size == null) {size = new Size(stage, HEIGHT, height);}
-		else size.setHeight(height);
+		else {size.setHeight(height);}
 		size.resize();
 	}
 
 	public void setSize(double width, double height) {
 		if (size == null) {size = new Size(stage, width, height);}
-		else size.setSize(width, height);
+		else {size.setSize(width, height);}
 		size.resize();
 	}
 
@@ -554,27 +542,40 @@ public class SceneObject {
 	}
 
 	public void clearStyleSheets() {
-		scene.getStylesheets().clear();
+		try {
+			scene.getStylesheets().clear();
+		}
+		catch(IllegalStateException ignored) {}
 	}
 
 	public void addStyleSheet(String styleSheet) {
-		scene.getStylesheets().add(styleSheet);
-		scene.getRoot().getStylesheets().add(styleSheet);
+		try {
+			scene.getStylesheets().add(styleSheet);
+			scene.getRoot().getStylesheets().add(styleSheet);
+		}
+		catch(IllegalStateException ignored) {}
 	}
 
 	public void setStyleSheets(String... styleSheets) {
-		scene.getStylesheets().clear();
-		scene.getRoot().getStylesheets().clear();
-		scene.getStylesheets().addAll(styleSheets);
-		scene.getRoot().getStylesheets().addAll(styleSheets);
+		try {
+			scene.getStylesheets().clear();
+			scene.getRoot().getStylesheets().clear();
+			scene.getStylesheets().addAll(styleSheets);
+			scene.getRoot().getStylesheets().addAll(styleSheets);
+		}
+		catch(IllegalStateException ignored) {}
 	}
 
-	public void setStyleSheet(String... styleSheets) {
-		if (stage != null) {
-			if (stage.isShowing()) {
-				scene.getStylesheets().setAll(styleSheets);
-			}
-		}
+	public double getPosX() {
+		return posX;
+	}
+
+	public double getPosY() {
+		return posY;
+	}
+
+	public void test() {
+		System.out.println("Test Successful");
 	}
 
 	private static @NotNull UnsupportedOperationException centerOnWaitError() {
@@ -592,5 +593,4 @@ public class SceneObject {
 		}
 		return frame.toString();
 	}
-
 }

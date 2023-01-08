@@ -33,6 +33,11 @@ SceneOne.show(sceneId);
 ```
 It's that simple.
 
+If you don't want to be bothered with deciding on sceneId Strings, you can always use this method to generate a random sceneId. Just make sure that if you reference that scene from another class, that you can access the sceneId string that you create:
+```Java
+String sceneId = SceneOne.randomSceneId();
+```
+
 You can also build and show your scene in a single line:
 
 ```java
@@ -54,21 +59,21 @@ The project is available as a Maven dependency on Central. Add the following to 
 <dependency>
     <groupId>com.simtechdata</groupId>
     <artifactId>SceneOneFX</artifactId>
-    <version>1.3.7</version>
+    <version>1.3.9</version>
 </dependency>
 ```
 
 Or, if using Gradle to build, add this to your Gradle build file
 
 ```groovy
-compile group: 'com.simtechdata', name: 'SceneOneFX', version: 1.3.7
+compile group: 'com.simtechdata', name: 'SceneOneFX', version: 1.3.9
 ```
 
 You can even use it from a Groovy script!
 
 ```groovy
 @Grapes(
-  @Grab(group='com.simtechdata', module='SceneOneFX', version=1.3.7)
+  @Grab(group='com.simtechdata', module='SceneOneFX', version=1.3.9)
 )
 ```
 ## Additional Features
@@ -119,13 +124,6 @@ or after the scene is built
 ```java
 SceneOne.show(sceneID);
 SceneOne.showAndWait(sceneID);
-```
-
-## Show the Scene before the one currently showing
-```java
-if (SceneOne.lastSceneAvailable()) {
-  SceneOne.showLastScene();
-}
 ```
 
 ## Core Objects
@@ -380,33 +378,50 @@ If your project uses SceneOneFX, shoot me an email [sims.mike@gmail.com](mailto:
 To add your project to the list here, you can also submit a pull request after changing this README.
 
 ## Single Stage Update
-SceneOneFX now follows conventional JavaFX theory by using a single Stage object to display all of the
-Scenes that you create. You can override this behavior by calling newStage() in your build sentence.
+By default, SceneOneFX uses a single Stage object to display all of the Scenes that you create. 
+You can override this behavior in two ways:
+- use ```newStage()``` in your build sentence.
+- call ```SceneOne.newStageEveryScene()``` which will set a flag so that every time you build a new Scene Object, a new stage gets created for that Scene. 
 
 ```Java
 SceneOne.set(sceneId, parent).newStage().build();
+SceneOne.newStageEveryScene();
 ```
 
-
-When you have a Scene that is currently showing, then you create a new Scene, that new Scene will be shown
-on the default Stage. When you then close that Scene, the previously showing Scene will be shown. You can
-chose to instead close the Stage that any Scene is currently showing on like this
-
+You can alternately define your own default Stage (such as the Application primaryStage on first run by calling
 ```Java
-SceneOne.closeStage(sceneId);
-SceneOne.closeStageIfShowing(sceneId);
+SceneOne.setDefaultStage(Stage);
 ```
 
-However, simply calling ```SceneOne.close(sceneId)``` will close the Stage, if that scene is the first
-Scene that was created for that Stage.
+SceneOneFX assumes that when you call that method, the stage being passed into it has not yet had any of the inits set on it ```initModality``` ```initStyle``` ```initOwner```. You can override this by passing in ```false``` as an argument to indicate that the Stage is not new.
+```Java
+SceneOne.setDefaultStage(Stage, false);
+```
+When you want to build scenes on your default Stage, you can use the new ```setOnDefault``` build statement in the same way that you currently use the ```set``` build statement.
+```Java
+SceneOne.setOnDefault(sceneId, ...);
+```
 
-Adding ```newStage()``` to all of your build sentences will cause SceneOneFX to behave as it has always behaved
-prior to version 1.3.1
+In every case, if you happen to pass in an init into your build sentence and the Stage has already had that init set, you will get a console message indicating that it's already been set as opposed to an error that dumps out the code. 
 
 ---
 
 Version Update Notes
 ---
+
+* **1.3.9**
+  * Lots of bugs fixed
+  * Restructured the way Stages are maintained / handled in the back end.
+  * Removed breadcrumbs all together and deprecated their methods.
+    * ```showLastScene()```
+    * ```lastSceneAvailable()```
+  * Added User Default Stage - see discussion above under **Single Stage Update**
+  * Added method ```randomSceneId()``` discussed at the top of the document.
+  * Added overloaded ```showMessage()``` method so that it is no longer required to specify an owner of that temporary Scene.  
+
+* **1.3.8**
+  * Bug Fixes
+  * Updated isShowing() method to return false if the sceneId doesn't exist instead of throwing error.
 
 * **1.3.7**
   * Bug Fixes

@@ -1,121 +1,184 @@
 package com.simtechdata.sceneonefx;
 
+import com.simtechdata.sceneonefx.id.Get;
+import com.simtechdata.sceneonefx.id.SceneID;
+import com.simtechdata.sceneonefx.id.StageID;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.stage.Window;
 
-import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Stages {
 
-	private final static Map<String, Stage>             stageMap      = new HashMap<>();
-	private final static Stage                          defaultStage  = new Stage();
-	private final static Map<Stage, LinkedList<String>> shownSceneMap = new HashMap<>();
+	private final static ConcurrentHashMap<StageID, Stage>   stageMap               = new ConcurrentHashMap<>();
+	private final static ConcurrentHashMap<SceneID, StageID> idMap                  = new ConcurrentHashMap<>();
+	private final static ConcurrentHashMap<StageID, Boolean> modalityMap            = new ConcurrentHashMap<>();
+	private final static ConcurrentHashMap<StageID, Boolean> styleMap               = new ConcurrentHashMap<>();
+	private final static ConcurrentHashMap<StageID, Boolean> ownerMap               = new ConcurrentHashMap<>();
+	private static       Stage                               userDefaultStage       = new Stage();
+	private static final Stage                               defaultStage           = new Stage();
+	private static       boolean                             defaultModalitySet     = false;
+	private static       boolean                             defaultStyleSet        = false;
+	private static       boolean                             defaultOwnerSet        = false;
+	private static       boolean                             userDefaultModalitySet = false;
+	private static       boolean                             userDefaultStyleSet    = false;
+	private static       boolean                             userDefaultOwnerSet    = false;
 
-	public int getSceneCount(String sceneId) {
-		Stage sceneStage = null;
-		int count = 0;
-		for(String sid : stageMap.keySet()) {
-			if(sid.equals(sceneId)) {
-				sceneStage = stageMap.get(sid);
-				count++;
-				break;
-			}
+	public static void initUserDefaultModality(Modality modality) {
+		if (!userDefaultModalitySet) {
+			userDefaultStage.initModality(modality);
+			userDefaultModalitySet = true;
 		}
-		if (sceneStage != null) {
-			if (shownSceneMap.containsKey(sceneStage)) {
-				LinkedList<String> scenes = shownSceneMap.get(sceneStage);
-				for(String sid : scenes) {
-					if(sid.equals(sceneId))
-						count++;
-				}
-			}
-		}
-		return count;
-	}
-
-	public static void addStage(String sceneId, Stage stage) {
-		if(!stageMap.containsKey(sceneId)) {
-			stageMap.put(sceneId, stage);
-		}
-		if (!shownSceneMap.containsKey(stage)) {
-			shownSceneMap.put(stage, new LinkedList<>());
+		else {
+			System.out.println("initModality has already been set for userDefaultStage");
 		}
 	}
 
-	public static Stage getStage(String sceneId) {
-		return stageMap.getOrDefault(sceneId, null);
+	public static void initUserDefaultStyle(StageStyle style) {
+		if (!userDefaultStyleSet) {
+			userDefaultStage.initStyle(style);
+			userDefaultStyleSet = true;
+		}
+		else {
+			System.out.println("initStyle has already been set for userDefaultStage");
+		}
 	}
 
-	public static boolean hasStage(String sceneId) {
-		return stageMap.containsKey(sceneId);
+	public static void initUserDefaultOwner(Window window) {
+		if (!userDefaultOwnerSet) {
+			userDefaultStage.initOwner(window);
+			userDefaultOwnerSet = true;
+		}
+		else {
+			System.out.println("initOwner has already been set for userDefaultStage");
+		}
+	}
+
+	public static void initDefaultModality(Modality modality) {
+		if (!defaultModalitySet) {
+			defaultStage.initModality(modality);
+			defaultModalitySet = true;
+		}
+		else {
+			System.out.println("initModality has already been set for defaultStage");
+		}
+	}
+
+	public static void initDefaultStyle(StageStyle style) {
+		if (!defaultStyleSet) {
+			defaultStage.initStyle(style);
+			defaultStyleSet = true;
+		}
+		else {
+			System.out.println("initStyle has already been set for defaultStage");
+		}
+	}
+
+	public static void initDefaultOwner(Window window) {
+		if (!defaultOwnerSet) {
+			defaultStage.initOwner(window);
+			defaultOwnerSet = true;
+		}
+		else {
+			System.out.println("initOwner has already been set for defaultStage");
+		}
+	}
+
+	public static void setUserDefaultStage(Stage stage) {
+		userDefaultStage       = stage;
+		userDefaultStyleSet    = false;
+		userDefaultModalitySet = false;
+	}
+
+	public static void setUserDefaultStage(Stage stage, boolean newStage) {
+		userDefaultStage       = stage;
+		userDefaultStyleSet    = !newStage;
+		userDefaultModalitySet = !newStage;
+		userDefaultOwnerSet    = !newStage;
+	}
+
+	public static Stage getUserDefaultStage() {
+		return userDefaultStage;
 	}
 
 	public static Stage getDefaultStage() {
 		return defaultStage;
 	}
 
-	public static void showingScene(String sceneId) {
-		Stage stage = stageMap.get(sceneId);
-		if (shownSceneMap.containsKey(stage)) {
-			if (shownSceneMap.get(stage).contains(sceneId)) {
-				LinkedList<String> list = shownSceneMap.get(stage);
-				list.remove(sceneId);
-				list.addLast(sceneId);
-				shownSceneMap.replace(stage, list);
-			}
-			else
-				shownSceneMap.get(stage).addLast(sceneId);
+
+	public static void initModality(StageID stageID, Modality modality) {
+		if(!modalityMap.containsKey(stageID)) {
+			stageMap.get(stageID).initModality(modality);
+			modalityMap.put(stageID, true);
+		}
+		else {
+			System.out.println("StageID " + stageID.toString() + "'s initModality has already been set");
 		}
 	}
 
-	public static boolean sceneHasHistory(String sceneId) {
-		Stage stage = stageMap.get(sceneId);
-		return shownSceneMap.get(stage).size() > 1;
+	public static void initStyle(StageID stageID, StageStyle stageStyle) {
+		if(!styleMap.containsKey(stageID)) {
+			stageMap.get(stageID).initStyle(stageStyle);
+			styleMap.put(stageID, true);
+		}
+		else {
+			System.out.println("StageID " + stageID.toString() + "'s initStyle has already been set");
+		}
 	}
 
-	public static String getLastShownScene(String sceneId) {
-		Stage stage = stageMap.get(sceneId);
-		if (shownSceneMap.get(stage).size() > 0) {
-			shownSceneMap.get(stage).removeLast();
+	public static void initOwner(StageID stageID, Window window) {
+		if(!ownerMap.containsKey(stageID)) {
+			stageMap.get(stageID).initOwner(window);
+			ownerMap.put(stageID, true);
 		}
-		return shownSceneMap.get(stage).getLast();
+		else {
+			System.out.println("StageID " + stageID.toString() + "'s initOwner has already been set");
+		}
 	}
 
-	private static Stage getStageForScene(String sceneId) {
-		for (String id : stageMap.keySet()) {
-			if (id.equals(sceneId)){
-				return stageMap.get(sceneId);
-			}
+	private static void removeSceneFromMaps(SceneID sceneID) {
+		idMap.remove(sceneID);
+		List<StageID> list = new ArrayList<>(idMap.values());
+		for (StageID stageID : stageMap.keySet()) {
+			if (!list.contains(stageID)) {stageMap.remove(stageID);}
 		}
+	}
+
+	public static void addStage(SceneID sceneID, Stage stage) {
+		removeSceneFromMaps(sceneID);
+		StageID stageID = Get.randomStageID();
+		stageMap.put(stageID, stage);
+		idMap.put(sceneID, stageID);
+	}
+
+	public static void newStage(SceneID sceneID) {
+		removeSceneFromMaps(sceneID);
+		StageID stageID = Get.randomStageID();
+		Stage   stage   = new Stage();
+		stageMap.put(stageID, stage);
+		idMap.put(sceneID, stageID);
+	}
+
+	public static Stage getStage(SceneID sceneID) {
+		if (idMap.containsKey(sceneID)) {return stageMap.getOrDefault(idMap.get(sceneID), null);}
 		return null;
 	}
 
-	public static void removeShownScene(String sceneId) {
-		Stage stage = stageMap.get(sceneId);
-		if(shownSceneMap.containsKey(stage)) {
-			LinkedList<String> list = shownSceneMap.get(stage);
-			if(list.contains(sceneId)) {
-				list.remove(sceneId);
-				shownSceneMap.replace(stage, list);
-			}
-		}
+	public static StageID getStageId(SceneID sceneID) {
+		return idMap.getOrDefault(sceneID, null);
 	}
 
-	public static void removeScene(String sceneId) {
-		if(stageMap.containsKey(sceneId)) {
-			Stage sceneStage = stageMap.get(sceneId);
-			if(shownSceneMap.containsKey(sceneStage)) {
-				LinkedList<String> sceneList = shownSceneMap.get(sceneStage);
-				sceneList.remove(sceneId);
-				if(sceneList.size() < 1) {
-					shownSceneMap.remove(sceneStage);
-				}
-				else {
-					shownSceneMap.replace(sceneStage, sceneList);
-				}
-			}
-			stageMap.remove(sceneId);
+	public static boolean hasStage(SceneID sceneID) {
+		if (idMap.containsKey(sceneID)) {
+			return stageMap.containsKey(idMap.get(sceneID));
 		}
+		return false;
 	}
 
+	public static void removeScene(SceneID sceneID) {
+		removeSceneFromMaps(sceneID);
+	}
 }
